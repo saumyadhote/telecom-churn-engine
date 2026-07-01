@@ -1,0 +1,16 @@
+{
+  "months": 18,
+  "eqpdays": 480,
+  "rev_Mean": 55.2,
+  "mou_Mean": 320.0,
+  "change_mou": -120.0,
+  "change_rev": -8.5,
+  "totmrc_Mean": 42.0,
+  "ovrmou_Mean": 0.0,
+  "drop_vce_Mean": 3.2,
+  "plcd_vce_Mean": 85.0,
+  "comp_vce_Mean": 80.5,
+  "custcare_Mean": 2.1,
+  "area": "CHICAGO IL",
+  "crclscod": "B"
+}
