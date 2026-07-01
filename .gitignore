@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data — do not commit raw CSVs (too large / proprietary)
+data/*.csv
+data/*.parquet
+data/*.xlsx
+!data/README.md
+!data/sample_input.json
+
+# Trained models (use Git LFS or HuggingFace Hub for large files)
+models/*.pkl
+models/*.joblib
+!models/.gitkeep
+
+# Reports
+reports/figures/*.png
+!reports/figures/.gitkeep
+
+# Environment variables
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
