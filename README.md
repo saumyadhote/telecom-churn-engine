@@ -278,11 +278,8 @@ docker run -p 8000:8000 -v $(pwd)/models:/app/models churn-engine
 6. FastAPI Documentation. https://fastapi.tiangolo.com/
 
 ---
-
-## 👤 Author
-
-**Saumya** — B.Tech Computer Science (Cloud Computing), SRMIST Chennai  
-GCI World 2026 Spring · OCI Foundations Certified · GitHub Community SRM
+ 
+GCI World 2026 Spring 
 
 ---
 
