@@ -1,27 +1,33 @@
-# 📡 Telecom Churn Prediction Engine
+# Telecom Churn Prediction Engine
 
-> **ML-powered churn scoring system** — predicts which telecom customers will cancel within 60 days, segments them by risk tier, and recommends targeted retention actions via a REST API.
+> End-to-end ML system that predicts 60-day customer churn for a 100K-customer telecom dataset, segments customers into risk tiers, and serves real-time predictions via a production REST API.
 
-![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
-![LightGBM](https://img.shields.io/badge/Model-LightGBM-orange)
-![AUC-ROC](https://img.shields.io/badge/AUC--ROC-0.692-green)
-![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi)
-![License](https://img.shields.io/badge/License-MIT-lightgrey)
-
----
-
-## 🎯 Problem
-
-A US telecom company with 100,000 customers has a **~50% churn rate** within 60 days but no system to predict *which* customers will leave before they do. Without prediction, every customer gets the same retention offer — wasting budget on low-risk customers and missing high-risk ones entirely.
-
-**This project solves that** by training a LightGBM classifier that:
-1. Scores every customer with a churn probability (0–1)
-2. Segments them into three actionable risk tiers
-3. Exposes predictions via a production-ready REST API
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://python.org)
+[![LightGBM](https://img.shields.io/badge/Model-LightGBM-F7931E)](https://lightgbm.readthedocs.io)
+[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![AUC-ROC](https://img.shields.io/badge/AUC--ROC-0.692-4CAF50)](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
+[![Tests](https://img.shields.io/badge/Tests-11%20passed-brightgreen)](#running-tests)
 
 ---
 
-## 📊 Model Performance
+## Overview
+
+Telecom operators lose significant recurring revenue to churn without knowing *which* customers are at risk until it is too late. This project delivers a complete predictive solution: from raw usage records to a containerised API that scores any customer in milliseconds.
+
+**What it does:**
+
+- Trains a LightGBM classifier on 100,000 customers with ~50% observed churn rate
+- Engineers 10+ behavioural features from raw call records and billing data
+- Classifies customers into High / Medium / Low risk tiers with prescriptive retention actions
+- Serves predictions through a FastAPI REST interface with single and batch endpoints
+- Projects **$9.9M net uplift** (14× ROI) at a 30% retention success rate
+
+---
+
+## Results
+
+### Model Performance
 
 | Model | AUC-ROC | F1-Score | Accuracy |
 |---|---|---|---|
@@ -30,64 +36,93 @@ A US telecom company with 100,000 customers has a **~50% churn rate** within 60 
 
 Evaluated on a stratified 80/20 train-test split (20,000 held-out customers).
 
+### Business Impact
+
+| Risk Tier | Score Threshold | Customers | Churn Rate | Revenue at Risk |
+|---|---|---|---|---|
+| High Risk | > 60% | 29,290 | 82.9% | $16.7M / yr |
+| Medium Risk | 40 – 60% | 41,023 | 49.5% | $14.0M / yr |
+| Low Risk | < 40% | 29,687 | 16.8% | $3.7M / yr |
+
+Projected outcome at 30% retention success and $15 / customer intervention cost:
+- Revenue saved: **$10.6M**
+- Intervention cost: **$760K**
+- **Net uplift: $9.9M — 14× ROI**
+
 ---
 
-## 🔍 Key Findings from EDA
+## Key Findings
 
-| Signal | Insight |
+EDA across 100+ raw features surfaced five dominant signals:
+
+| Feature | Insight |
 |---|---|
-| **Usage trend** (`change_mou`) | Churners' usage declining faster — #1 predictor |
-| **Device age** (`eqpdays`) | 45% of churners on devices 1–2+ years old vs 30% of stayers |
-| **Revenue trend** (`change_rev`) | Revenue drop tracks usage — customers drifting before they leave |
-| **Monthly bill** (`totmrc_Mean`) | High recurring charges without perceived value accelerate churn |
-| **Revenue efficiency** (`rev_per_min`) | Engineered feature — captures value-for-money mismatch |
+| `change_mou` — usage trend | Churners' call volume declining sharply; strongest single predictor |
+| `eqpdays` — device age | 45% of churners on devices ≥ 1 year vs 30% of stayers |
+| `change_rev` — revenue trend | Revenue decay tracks usage drop; customers drift before they cancel |
+| `totmrc_Mean` — monthly recurring charge | High recurring fees without perceived value accelerate exit |
+| `rev_per_min` — revenue efficiency (engineered) | Captures value-for-money mismatch; churners pay more per minute of use |
 
-> **Key insight:** Churn is *not* a pricing problem — churners and stayers pay nearly identical amounts ($58.21 vs $59.22/month). Retention must target experience (device upgrades, service quality), not discounts.
+**Critical insight:** Churn is not a pricing problem. Churners and stayers pay nearly identical monthly amounts ($58.21 vs $59.22). Effective retention must target experience — device upgrades and service quality — not blanket discounts.
 
 ---
 
-## 🏗️ Project Structure
+## Architecture
+
+```
+Raw Data (Client.csv + Record.csv)
+        │
+        ▼
+  src/preprocess.py       ← merge, clean, engineer features
+        │
+        ▼
+  src/train.py            ← baseline → LightGBM, artefact serialisation
+        │
+        ▼
+  models/                 ← lgbm_churn.pkl, encoders.pkl, feature_cols.pkl
+        │
+        ▼
+  src/predict.py          ← ChurnPredictor class, risk tier logic
+        │
+        ▼
+  api/main.py             ← FastAPI app (3 endpoints, Pydantic v2 validation)
+        │
+        ▼
+  Docker container        ← portable, production-ready deployment
+```
+
+---
+
+## Project Structure
 
 ```
 telecom-churn-engine/
-├── README.md
-├── requirements.txt
-├── Dockerfile
-├── .gitignore
-│
 ├── data/
-│   ├── README.md           ← how to get the dataset
-│   └── sample_input.json   ← test the API without full data
-│
+│   ├── README.md           ← dataset instructions
+│   └── sample_input.json   ← API test payload
 ├── notebooks/
 │   ├── 01_eda.ipynb        ← exploratory data analysis
-│   └── 02_modelling.ipynb  ← model training & evaluation
-│
+│   └── 02_modelling.ipynb  ← training pipeline and evaluation
 ├── src/
-│   ├── preprocess.py       ← data loading + feature engineering
-│   ├── train.py            ← model training + artefact saving
-│   ├── predict.py          ← ChurnPredictor class
-│   └── evaluate.py         ← metrics + visualisation utilities
-│
+│   ├── preprocess.py       ← data loading and feature engineering
+│   ├── train.py            ← model training with artefact persistence
+│   ├── predict.py          ← ChurnPredictor class with risk tier logic
+│   └── evaluate.py         ← metrics and visualisation utilities
 ├── api/
-│   └── main.py             ← FastAPI app (3 endpoints)
-│
-├── models/                 ← saved model artefacts (not in git)
-│   ├── lgbm_churn.pkl
-│   ├── encoders.pkl
-│   ├── feature_cols.pkl
-│   └── results.json
-│
-└── tests/
-    ├── test_api.py         ← API endpoint tests
-    └── test_preprocess.py  ← feature engineering unit tests
+│   └── main.py             ← FastAPI application
+├── models/                 ← serialised artefacts (excluded from git)
+├── tests/
+│   ├── test_api.py         ← endpoint integration tests
+│   └── test_preprocess.py  ← feature engineering unit tests
+├── Dockerfile
+└── requirements.txt
 ```
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### 1. Clone & install
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/telecom-churn-engine.git
@@ -98,7 +133,7 @@ pip install -r requirements.txt
 ### 2. Add data
 
 Place `Client.csv` and `Record.csv` in the `data/` folder.
-See [`data/README.md`](data/README.md) for details.
+See [`data/README.md`](data/README.md) for the full dataset specification.
 
 ### 3. Train the model
 
@@ -109,38 +144,39 @@ python -m src.train \
   --output models/
 ```
 
-Output:
+Expected output:
 ```
-2024-xx-xx  Loading data...
-2024-xx-xx  Loaded merged dataset: 100,000 rows × 100 columns
-2024-xx-xx  Churn rate: 49.56%
-2024-xx-xx  Training Logistic Regression baseline...
-──────────────────────────────────────────────────
+Loading data...
+Loaded merged dataset: 100,000 rows × 100 columns
+Churn rate: 49.56%
+
+──────────────────────────────────────────────
   Logistic Regression (baseline)
-──────────────────────────────────────────────────
+──────────────────────────────────────────────
   AUC-ROC  : 0.6043
   F1 Score : 0.5622
   Accuracy : 0.5765
-──────────────────────────────────────────────────
+──────────────────────────────────────────────
   LightGBM (final model)
-──────────────────────────────────────────────────
+──────────────────────────────────────────────
   AUC-ROC  : 0.6927
   F1 Score : 0.6387
   Accuracy : 0.6370
-2024-xx-xx  Model saved → models/lgbm_churn.pkl
+
+Model saved → models/lgbm_churn.pkl
 ```
 
-### 4. Run the API
+### 4. Start the API
 
 ```bash
 uvicorn api.main:app --reload --port 8000
 ```
 
-Visit **http://localhost:8000/docs** for the interactive Swagger UI.
+Interactive docs available at **http://localhost:8000/docs**.
 
 ---
 
-## 🔌 API Reference
+## API Reference
 
 ### `POST /predict` — Score a single customer
 
@@ -179,7 +215,7 @@ Visit **http://localhost:8000/docs** for the interactive Swagger UI.
 }
 ```
 
-### `GET /model-info` — Model metadata and performance
+### `GET /model-info` — Model metadata and performance metrics
 
 ```json
 {
@@ -193,7 +229,7 @@ Visit **http://localhost:8000/docs** for the interactive Swagger UI.
 }
 ```
 
-**Test with the sample input:**
+**Test with the sample payload:**
 ```bash
 curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
@@ -202,85 +238,62 @@ curl -X POST http://localhost:8000/predict \
 
 ---
 
-## 🎯 Risk Tier → Retention Action
-
-| Tier | Score | Customers | Churn Rate | Revenue at Risk | Recommended Action |
-|---|---|---|---|---|---|
-| 🔴 High Risk | > 60% | 29,290 | 82.9% | $16.7M/yr | Dedicated outreach, device upgrade, plan review |
-| 🟡 Medium Risk | 40–60% | 41,023 | 49.5% | $14.0M/yr | Loyalty SMS, plan optimisation, satisfaction survey |
-| 🟢 Low Risk | < 40% | 29,687 | 16.8% | $3.7M/yr | Automated email, referral programme |
-
-**Projected business impact** (30% retention success rate, $15/customer intervention cost):
-- Revenue saved: **$10.6M**
-- Intervention cost: **$760K**
-- Net uplift: **$9.9M — 14× ROI**
-
----
-
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 pytest tests/ -v
 ```
 
-Expected output:
 ```
-tests/test_api.py::test_health_check              PASSED
-tests/test_api.py::test_predict_returns_200       PASSED
-tests/test_api.py::test_predict_response_schema   PASSED
-tests/test_api.py::test_predict_probability_range PASSED
-tests/test_api.py::test_predict_binary_prediction PASSED
-tests/test_api.py::test_predict_valid_risk_tier   PASSED
-tests/test_api.py::test_batch_predict             PASSED
+tests/test_api.py::test_health_check                PASSED
+tests/test_api.py::test_predict_returns_200         PASSED
+tests/test_api.py::test_predict_response_schema     PASSED
+tests/test_api.py::test_predict_probability_range   PASSED
+tests/test_api.py::test_predict_binary_prediction   PASSED
+tests/test_api.py::test_predict_valid_risk_tier     PASSED
+tests/test_api.py::test_batch_predict               PASSED
 tests/test_api.py::test_predict_with_minimal_fields PASSED
 tests/test_preprocess.py::test_engineer_features_adds_columns PASSED
 tests/test_preprocess.py::test_call_completion_rate_range     PASSED
 tests/test_preprocess.py::test_overage_flag_binary            PASSED
-...
+11 passed in 0.84s
 ```
 
 ---
 
-## 🐳 Docker
+## Docker
 
 ```bash
 # Build
 docker build -t churn-engine .
 
-# Run (after training — mount the models directory)
+# Run (mount the trained models directory)
 docker run -p 8000:8000 -v $(pwd)/models:/app/models churn-engine
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-| Component | Technology |
+| Layer | Technology |
 |---|---|
-| ML Model | LightGBM 4.x |
+| ML Model | LightGBM 4.x (gradient boosted trees) |
 | Baseline | scikit-learn LogisticRegression |
-| Data processing | pandas, numpy |
-| API | FastAPI + Uvicorn |
-| Validation | Pydantic v2 |
-| Persistence | joblib |
+| Data processing | pandas, NumPy |
+| API framework | FastAPI + Uvicorn |
+| Schema validation | Pydantic v2 |
+| Model persistence | joblib |
 | Testing | pytest + httpx |
 | Containerisation | Docker |
 
 ---
 
-## 📚 References
+## References
 
-1. Statista (2024). Global Telecommunications Market Revenue. https://www.statista.com/statistics/1170056/global-telecom-market-revenue/
-2. Bain & Company (2023). Customer Loyalty in Telecom. https://www.bain.com/insights/topics/customer-loyalty/
-3. McKinsey & Company (2023). Telecom Churn and the AI Opportunity. https://www.mckinsey.com/industries/technology-media-and-telecommunications/
-4. Ke, G. et al. (2017). LightGBM: A Highly Efficient Gradient Boosting Decision Tree. NeurIPS 2017. https://papers.nips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html
-5. LightGBM Documentation. https://lightgbm.readthedocs.io/en/latest/
-6. FastAPI Documentation. https://fastapi.tiangolo.com/
-
----
- 
-GCI World 2026 Spring 
+1. Ke, G. et al. (2017). *LightGBM: A Highly Efficient Gradient Boosting Decision Tree.* NeurIPS 2017.
+2. [LightGBM Documentation](https://lightgbm.readthedocs.io/en/latest/)
+3. [FastAPI Documentation](https://fastapi.tiangolo.com/)
 
 ---
 
-*Dataset: Company A — GCI World 2026 Final Assignment, Matsuo-Iwasawa Laboratory, The University of Tokyo (2024). Raw data not included in this repository.*
+*Dataset: GCI World 2026 Final Assignment, Matsuo-Iwasawa Laboratory, The University of Tokyo. Raw data not included in this repository.*
