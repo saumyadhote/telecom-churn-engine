@@ -1,0 +1,15 @@
+{
+  "logistic_regression": {
+    "auc_roc": 0.6045,
+    "f1": 0.5564,
+    "accuracy": 0.5758
+  },
+  "lightgbm": {
+    "auc_roc": 0.6915,
+    "f1": 0.6363,
+    "accuracy": 0.6352
+  },
+  "feature_count": 102,
+  "train_rows": 80000,
+  "test_rows": 20000
+}
