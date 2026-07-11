@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telecom Churn Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;1,14..32,400&family=Work+Sans:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & tokens ──────────────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* Color */
+      --white:       #FFFFFF;
+      --off-white:   #FAFAF9;
+      --surface:     #F4F3F1;
+      --border:      #E8E7E4;
+      --border-dark: #D0CFC9;
+      --text-1:      #111110;
+      --text-2:      #6B6968;
+      --text-3:      #9E9C99;
+      --accent:      #16412B;
+      --accent-bg:   #EBF2EE;
+      --canvas-bg:   #0D1117;
+      --canvas-grid: rgba(255,255,255,0.045);
+      --high:        #C93A3A;
+      --high-dim:    rgba(201,58,58,0.15);
+      --med:         #A06800;
+      --med-dim:     rgba(160,104,0,0.15);
+      --low:         #1E6B3C;
+      --low-dim:     rgba(30,107,60,0.15);
+
+      /* Type */
+      --font:    'Inter', -apple-system, system-ui, sans-serif;
+
+      /* Spacing (8px grid) */
+      --s1:  8px;
+      --s2:  16px;
+      --s3:  24px;
+      --s4:  32px;
+      --s5:  40px;
+      --s6:  48px;
+      --s7:  56px;
+      --s8:  64px;
+      --s10: 80px;
+      --s12: 96px;
+      --s15: 120px;
+
+      /* Layout */
+      --max-w: 1200px;
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 20px;
+
+      /* Shadow */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow:    0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05);
+      --shadow-md: 0 2px 8px rgba(0,0,0,0.07), 0 12px 32px rgba(0,0,0,0.06);
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      font-size: 18px;
+      line-height: 1.65;
+      color: var(--text-1);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Layout utilities ────────────────────────────────────────────────── */
+    .container {
+      width: 100%;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--s5);
+    }
+
+    section { position: relative; }
+
+    /* ── Scroll reveal ───────────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 280ms ease, transform 280ms ease;
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 60ms; }
+    .reveal-delay-2 { transition-delay: 120ms; }
+    .reveal-delay-3 { transition-delay: 180ms; }
+
+    /* ── Section label ───────────────────────────────────────────────────── */
+    .eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: var(--s3);
+    }
+
+    /* ── Navigation ──────────────────────────────────────────────────────── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #043927;
+      border-bottom: 1px solid transparent;
+      transition: border-color 200ms ease;
+    }
+    .nav.scrolled { border-bottom-color: rgba(255,255,255,0.1); }
+
+    .nav-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--s5);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Work Sans', -apple-system, system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-logo img {
+      height: 28px;
+      width: auto;
+      display: block;
+      filter: brightness(0) invert(1);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--s4);
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+    .nav-links a:hover { color: rgba(255,255,255,1); }
+
+    .nav-cta {
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      color: #043927 !important;
+      background: rgba(255,255,255,0.92);
+      padding: 7px 16px;
+      border-radius: var(--radius-sm);
+      transition: background 150ms ease !important;
+    }
+    .nav-cta:hover { background: #fff !important; }
+
+    /* ── Hero ────────────────────────────────────────────────────────────── */
+    .hero {
+      padding: var(--s15) 0 var(--s12);
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: var(--s10);
+      align-items: end;
+    }
+
+    .hero-heading {
+      font-size: clamp(44px, 5.5vw, 64px);
+      font-weight: 600;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      color: var(--text-1);
+      margin-bottom: var(--s4);
+    }
+
+    .hero-heading em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--text-2);
+    }
+
+    .hero-body {
+      font-size: 18px;
+      color: var(--text-2);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: var(--s6);
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--white);
+      background: var(--text-1);
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 150ms ease, transform 150ms ease;
+      font-family: var(--font);
+    }
+    .btn-primary:hover { background: #333; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-2);
+      text-decoration: none;
+      gap: 6px;
+      transition: color 150ms ease;
+    }
+    .btn-ghost:hover { color: var(--text-1); }
+
+    /* Hero stats panel */
+    .hero-stats {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--s5);
+    }
+
+    .hero-stats-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: var(--s4);
+    }
+
+    .hero-stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: var(--s2) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-stat-row:last-child { border-bottom: none; }
+
+    .hero-stat-key {
+      font-size: 14px;
+      color: var(--text-2);
+    }
+
+    .hero-stat-val {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-1);
+    }
+
+    .hero-stat-sub {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-left: 4px;
+      font-weight: 400;
+    }
+
+    /* ── Predictor section — Operate style ───────────────────────────────── */
+    .predictor-section {
+      padding: var(--s12) 0 var(--s10);
+      background: #cad3c6;
+      background-image: repeating-linear-gradient(
+        90deg,
+        rgba(0,0,0,0.035) 0px,
+        rgba(0,0,0,0.035) 1px,
+        transparent 1px,
+        transparent 24px
+      );
+      border-bottom: 1px solid rgba(42,74,42,0.2);
+    }
+
+    .predictor-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: var(--s4);
+    }
+
+    .predictor-title-line {
+      flex: 1;
+      max-width: 180px;
+      height: 1px;
+      background: rgba(42,74,42,0.35);
+    }
+
+    .predictor-title-text {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #2a4a2a;
+      white-space: nowrap;
+    }
+
+    /* Card wrapper — canvas + overlays */
+    .predictor-card-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      border-radius: 16px;
+      border: 1.5px solid rgba(30,60,30,0.4);
+      overflow: hidden;
+      height: 580px;
+    }
+
+    #operaCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Form overlay card */
+    .opera-form {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      bottom: 18px;
+      width: 210px;
+      background: #162818;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 14px;
+      z-index: 10;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .opera-form::-webkit-scrollbar { display: none; }
+
+    .opera-form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .opera-form-title {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .opera-form-icon {
+      font-size: 12px;
+      color: #6a9e61;
+      line-height: 1;
+    }
+
+    .opera-form-subtitle {
+      font-size: 10px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .opera-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-bottom: 7px;
+    }
+
+    .opera-field label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .opera-field input {
+      padding: 8px 8px;
+      font-size: 10px;
+      font-family: var(--font);
+      color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+    .opera-field input:focus {
+      border-color: rgba(106,158,97,0.6);
+      background: rgba(255,255,255,0.10);
+    }
+
+    .opera-presets {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .opera-preset {
+      padding: 5px 6px;
+      font-size: 9px;
+      font-weight: 500;
+      font-family: var(--font);
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      transition: all 150ms ease;
+      text-align: center;
+    }
+    .opera-preset:hover {
+      border-color: rgba(106,158,97,0.5);
+      color: rgba(255,255,255,0.9);
+      background: rgba(106,158,97,0.12);
+    }
+
+    .opera-submit {
+      width: 100%;
+      padding: 8px;
+      font-size: 10px;
+      font-weight: 500;
+      font-family: var(--font);
+      color: #fff;
+      background: #2a5a3a;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 150ms ease;
+      letter-spacing: 0.04em;
+    }
+    .opera-submit:hover { background: #356847; }
+    .opera-submit:disabled { opacity: 0.45; cursor: wait; }
+
+    /* Remove number input spinners */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    /* Info button and label row */
+    .opera-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .info-btn {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: transparent;
+      color: rgba(255,255,255,0.38);
+      font-size: 7.5px;
+      font-style: italic;
+      font-family: Georgia, 'Times New Roman', serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+      line-height: 1;
+      transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+    }
+    .info-btn:hover {
+      border-color: rgba(106,158,97,0.7);
+      color: rgba(255,255,255,0.75);
+      background: rgba(106,158,97,0.15);
+    }
+
+    /* Floating tooltip */
+    .field-tooltip {
+      position: fixed;
+      background: #0c1a10;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 7px;
+      padding: 9px 11px;
+      font-size: 10px;
+      font-family: var(--font);
+      color: rgba(255,255,255,0.68);
+      line-height: 1.55;
+      max-width: 200px;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 150ms ease, transform 150ms ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    }
+    .field-tooltip.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* API status dot inside form */
+    .opera-api-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .opera-api-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #4ade80;
+      flex-shrink: 0;
+    }
+    .opera-api-dot.offline { background: #C93A3A; }
+
+    .opera-api-text {
+      font-size: 8px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.04em;
+    }
+
+    /* Result badge overlay */
+    .opera-result {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      width: 180px;
+      background: #162818;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 14px;
+      z-index: 10;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 250ms ease, transform 250ms ease;
+      pointer-events: none;
+    }
+    .opera-result.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .opera-result-tier {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .opera-result-prob {
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 8px;
+    }
+
+    .opera-result-action {
+      font-size: 10px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.55;
+    }
+
+    /* Slider below the card */
+    .predictor-slider-wrap {
+      max-width: 960px;
+      margin: 18px auto 0;
+    }
+
+    .predictor-slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .predictor-slider-label {
+      font-size: 10px;
+      color: #2a4a2a;
+      opacity: 0.7;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    .predictor-slider-track {
+      position: relative;
+      height: 5px;
+      background: rgba(42,74,42,0.15);
+      border-radius: 99px;
+      overflow: visible;
+    }
+
+    .predictor-slider-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      border-radius: 99px;
+      background: #2a5230;
+      width: 0%;
+      transition: width 700ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .predictor-slider-thumb {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #2a5230;
+      border: 2px solid #cad3c6;
+      box-shadow: 0 0 0 1px rgba(42,82,42,0.5);
+      left: 0%;
+      transition: left 700ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .predictor-slider-underline {
+      height: 2px;
+      background: #2a5230;
+      border-radius: 1px;
+      margin-top: 8px;
+      opacity: 0.6;
+    }
+
+    /* ── How it helps ────────────────────────────────────────────────────── */
+    .how-section {
+      padding: var(--s12) 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .how-eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: var(--s6);
+      display: block;
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--s4);
+    }
+
+    .how-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--s6);
+    }
+
+    .how-number {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      color: var(--text-3);
+      margin-bottom: var(--s3);
+    }
+
+    .how-title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      color: var(--text-1);
+      margin-bottom: var(--s2);
+    }
+
+    .how-body {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.7;
+    }
+
+    .how-stat {
+      display: inline-block;
+      margin-top: var(--s3);
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+    }
+
+    @media (max-width: 768px) {
+      .how-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Findings ────────────────────────────────────────────────────────── */
+    .findings-section {
+      padding: var(--s15) 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .findings-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s10);
+      margin-bottom: var(--s10);
+      align-items: end;
+    }
+
+    .findings-heading {
+      font-size: clamp(32px, 3.5vw, 44px);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+    }
+
+    .findings-intro {
+      font-size: 17px;
+      color: var(--text-2);
+      line-height: 1.7;
+    }
+
+    .finding {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: var(--s5);
+      align-items: start;
+      padding: var(--s6) 0;
+      border-top: 1px solid var(--border);
+    }
+    .finding:last-child { border-bottom: 1px solid var(--border); }
+
+    .finding-num {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
+      padding-top: 5px;
+    }
+
+    .finding-content {}
+
+    .finding-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: var(--s2);
+    }
+
+    .finding-body {
+      font-size: 16px;
+      color: var(--text-2);
+      line-height: 1.65;
+      max-width: 560px;
+    }
+
+    .finding-stat {
+      text-align: right;
+      min-width: 140px;
+    }
+
+    .finding-stat-val {
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+      display: block;
+    }
+
+    .finding-stat-label {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 2px;
+      display: block;
+    }
+
+    /* Highlighted callout */
+    .callout {
+      margin-top: var(--s10);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--text-1);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: var(--s5) var(--s6);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--s8);
+      align-items: center;
+    }
+
+    .callout-text {
+      font-size: 18px;
+      color: var(--text-1);
+      font-style: italic;
+      line-height: 1.55;
+    }
+
+    .callout-note {
+      font-size: 13px;
+      color: var(--text-3);
+      text-align: right;
+      min-width: 180px;
+    }
+
+    /* ── Performance — comparison table ─────────────────────────────────── */
+    .performance-section {
+      padding: var(--s15) 0;
+      background: var(--off-white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s10);
+      align-items: start;
+      margin-top: var(--s10);
+    }
+
+    /* Single comparison table card */
+    .perf-compare-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .perf-compare-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .perf-compare-table thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .perf-compare-table th {
+      padding: var(--s3) var(--s4);
+      font-size: 13px;
+      font-weight: 500;
+      text-align: left;
+      color: var(--text-2);
+      background: var(--white);
+    }
+
+    .perf-compare-table th:first-child {
+      color: var(--text-3);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      width: 30%;
+    }
+
+    .perf-compare-table th:not(:first-child) {
+      text-align: right;
+      width: 35%;
+    }
+
+    .perf-col-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .perf-col-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-1);
+      letter-spacing: -0.01em;
+    }
+
+    .perf-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 99px;
+    }
+    .perf-tag.baseline { background: var(--surface); color: var(--text-3); }
+    .perf-tag.final    { background: var(--accent); color: var(--white); }
+
+    .perf-compare-table tbody tr {
+      border-bottom: 1px solid var(--border);
+    }
+    .perf-compare-table tbody tr:last-child { border-bottom: none; }
+
+    .perf-compare-table td {
+      padding: var(--s3) var(--s4);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .perf-compare-table td:first-child {
+      color: var(--text-2);
+      font-size: 13px;
+    }
+
+    .perf-compare-table td:not(:first-child) {
+      text-align: right;
+    }
+
+    .perf-val {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-1);
+    }
+
+    .perf-delta {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--low);
+      background: var(--low-dim);
+      padding: 2px 6px;
+      border-radius: 99px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .perf-compare-footer {
+      padding: var(--s3) var(--s4);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .perf-note {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.65;
+      max-width: 440px;
+    }
+
+    .perf-note + .perf-note { margin-top: var(--s3); }
+
+    /* ── Business impact — detailed deployment ───────────────────────────── */
+    .impact-section {
+      padding: var(--s15) 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .impact-section-header {
+      margin-bottom: var(--s10);
+    }
+
+    .impact-section-heading {
+      font-size: clamp(32px, 3.5vw, 44px);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin-bottom: var(--s3);
+    }
+
+    .impact-section-body {
+      font-size: 17px;
+      color: var(--text-2);
+      line-height: 1.7;
+      max-width: 680px;
+    }
+
+    /* Workflow rows */
+    .workflow-rows {
+      border-top: 1px solid var(--border);
+      margin-bottom: var(--s10);
+    }
+
+    .workflow-row {
+      display: grid;
+      grid-template-columns: 56px 200px 1fr;
+      gap: var(--s5);
+      align-items: start;
+      padding: var(--s6) 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .workflow-num {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
+      padding-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .workflow-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-1);
+      padding-top: 3px;
+      line-height: 1.3;
+    }
+
+    .workflow-desc {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    /* "What data do you need?" subsection */
+    .data-subsection {
+      margin-bottom: var(--s10);
+    }
+
+    .data-heading {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      margin-bottom: var(--s2);
+    }
+
+    .data-body {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.65;
+      max-width: 560px;
+      margin-bottom: var(--s5);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 14px;
+      margin-bottom: var(--s6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .data-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: var(--s2) var(--s3);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 11px var(--s3);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      color: var(--text-2);
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+
+    .data-table td:first-child {
+      font-family: 'SF Mono', 'Fira Mono', 'Consolas', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Code blocks */
+    .code-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s4);
+      margin-bottom: var(--s10);
+    }
+
+    .code-block {
+      background: #0d1117;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+
+    .code-block-header {
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .code-block pre {
+      padding: var(--s3) var(--s4);
+      font-family: 'SF Mono', 'Fira Mono', 'Consolas', monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.75);
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .code-key   { color: #79b8ff; }
+    .code-str   { color: #85e89d; }
+    .code-num   { color: #f0c674; }
+    .code-comment { color: rgba(255,255,255,0.3); }
+
+    /* Impact numbers row */
+    .impact-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      border-top: 1px solid var(--border);
+      margin-top: var(--s10);
+    }
+
+    .impact-cell {
+      padding: var(--s8) var(--s6) var(--s8) 0;
+      border-right: 1px solid var(--border);
+    }
+    .impact-cell:first-child { padding-right: var(--s8); }
+    .impact-cell:last-child  { border-right: none; padding-right: 0; }
+
+    .impact-big {
+      font-size: clamp(36px, 4vw, 52px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      color: var(--text-1);
+      display: block;
+      line-height: 1;
+      margin-bottom: var(--s2);
+    }
+
+    .impact-label {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    .impact-note {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 3px;
+    }
+
+    .impact-main-heading {
+      font-size: clamp(32px, 3.5vw, 44px);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+    }
+
+    .impact-main-body {
+      font-size: 16px;
+      color: var(--text-2);
+      margin-top: var(--s4);
+      line-height: 1.7;
+      max-width: 480px;
+    }
+
+    /* ── Risk tiers ──────────────────────────────────────────────────────── */
+    .tiers-section {
+      padding: var(--s15) 0;
+      background: var(--off-white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tiers-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--s8);
+      font-size: 15px;
+    }
+
+    .tiers-table th {
+      text-align: left;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: var(--s2) var(--s3) var(--s2) 0;
+      border-bottom: 1px solid var(--border-dark);
+    }
+
+    .tiers-table td {
+      padding: var(--s3) var(--s3) var(--s3) 0;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .tiers-table tr:last-child td { border-bottom: none; }
+
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 500;
+    }
+
+    .tier-pip {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .tiers-table td:not(:first-child) { color: var(--text-2); }
+    .tiers-table td.revenue { font-weight: 600; color: var(--text-1); font-size: 16px; }
+    .tiers-table td.action { font-size: 13px; max-width: 280px; }
+
+    /* ── Stack ───────────────────────────────────────────────────────────── */
+    .stack-section {
+      padding: var(--s12) 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stack-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--s10);
+      align-items: start;
+    }
+
+    .stack-heading {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+    }
+
+    .stack-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--s2);
+    }
+
+    .stack-item {
+      padding: 8px 16px;
+      font-size: 14px;
+      color: var(--text-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────────── */
+    .footer {
+      background: var(--text-1);
+      padding: var(--s8) 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .footer-logo img {
+      height: 24px;
+      width: auto;
+      display: block;
+      filter: brightness(0) invert(1);
+    }
+
+    .footer-meta {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: var(--s4);
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,0.85); }
+
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .hero-grid { grid-template-columns: 1fr; gap: var(--s8); }
+      .hero-stats { max-width: 480px; }
+      .findings-header { grid-template-columns: 1fr; gap: var(--s5); }
+      .perf-grid { grid-template-columns: 1fr; }
+      .perf-note { max-width: 100%; }
+      .impact-grid { grid-template-columns: 1fr 1fr; }
+      .impact-cell { border-right: none; margin-right: 0; padding-right: 0; padding-bottom: var(--s6); border-bottom: 1px solid var(--border); }
+      .impact-cell:first-child { padding-right: 0; margin-right: 0; border-bottom: 1px solid var(--border); }
+      .impact-cell:last-child { border-bottom: none; }
+      .stack-inner { grid-template-columns: 1fr; gap: var(--s5); }
+      .finding { grid-template-columns: 40px 1fr; }
+      .finding-stat { display: none; }
+      .workflow-row { grid-template-columns: 40px 1fr; }
+      .workflow-title { font-size: 15px; }
+      .code-wrap { grid-template-columns: 1fr; }
+      .tiers-table td.action { display: none; }
+      .predictor-card-wrap { height: auto; min-height: 420px; }
+      #operaCanvas { height: 420px; }
+      .callout { grid-template-columns: 1fr; gap: var(--s4); }
+      .callout-note { text-align: left; min-width: 0; }
+      .footer-inner { flex-direction: column; gap: var(--s3); text-align: center; }
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 0 var(--s3); }
+      .nav-inner { padding: 0 var(--s3); }
+      .nav-links { gap: var(--s3); }
+      .nav-links li:not(:last-child) { display: none; }
+      .hero { padding: var(--s10) 0 var(--s8); }
+      .hero-heading { font-size: 36px; }
+      .hero-body { font-size: 16px; }
+      .findings-section, .performance-section, .impact-section, .tiers-section { padding: var(--s10) 0; }
+      .findings-heading, .findings-header .reveal h2, .impact-section-heading, .impact-main-heading { font-size: 28px; }
+      .finding { grid-template-columns: 32px 1fr; gap: var(--s3); padding: var(--s5) 0; }
+      .finding-body { font-size: 15px; }
+      .workflow-row { grid-template-columns: 32px 1fr; gap: var(--s3); padding: var(--s4) 0; }
+      .impact-grid { grid-template-columns: 1fr 1fr; gap: 0; }
+      .impact-big { font-size: 32px; }
+      .hero-actions { flex-direction: column; align-items: flex-start; gap: var(--s2); }
+      .predictor-section { padding: var(--s8) 0; }
+      .predictor-card-wrap { border-radius: 12px; height: auto; }
+      #operaCanvas { height: 360px; }
+      .opera-form { width: 190px; right: 12px; top: 12px; }
+      .opera-result { left: 12px; top: 12px; width: 160px; }
+      .tiers-table { font-size: 13px; }
+      .data-table { font-size: 13px; }
+      .stack-section { padding: var(--s8) 0; }
+    }
+
+    @media (max-width: 480px) {
+      .nav-links { gap: var(--s2); }
+      .hero-heading { font-size: 30px; letter-spacing: -0.025em; }
+      .btn-primary, .btn-ghost { font-size: 13px; }
+      .hero-stat-val { font-size: 18px; }
+      .predictor-card-wrap { border-radius: 10px; }
+      #operaCanvas { height: 320px; }
+      .opera-form { width: 170px; padding: 10px; right: 10px; top: 10px; }
+      .opera-result { width: 150px; left: 10px; top: 10px; }
+      .impact-grid { grid-template-columns: 1fr; }
+      .impact-cell { border-bottom: 1px solid var(--border); padding: var(--s5) 0; }
+      .impact-cell:last-child { border-bottom: none; }
+      .impact-big { font-size: 40px; }
+      .workflow-row { grid-template-columns: 28px 1fr; }
+      .code-wrap { gap: var(--s3); }
+      .tiers-table th, .tiers-table td { padding-right: var(--s2); }
+      .finding { gap: var(--s2); }
+      .callout { padding: var(--s4); }
+      .footer-inner { gap: var(--s2); }
+      .footer-links { gap: var(--s3); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ───────────────────────────────────────────────────────────────── -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <img src="./churn.svg" alt="Churn Engine logo" />
+      Churn Engine
+    </a>
+    <ul class="nav-links">
+      <li><a href="#predictor">Predictor</a></li>
+      <li><a href="#findings">Findings</a></li>
+      <li><a href="#performance">Model</a></li>
+      <li><a href="#impact">Impact</a></li>
+      <li><a href="#predictor" class="nav-cta">Try Demo</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ──────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow reveal">Telecom · Machine Learning</span>
+        <h1 class="hero-heading reveal reveal-delay-1">
+          Predicting customer churn<br><em>before it happens.</em>
+        </h1>
+        <p class="hero-body reveal reveal-delay-2">
+          A LightGBM classifier trained on 100,000 customers identifies which subscribers will cancel within 60 days — segmenting them into actionable risk tiers with prescriptive retention strategies.
+        </p>
+        <div class="hero-actions reveal reveal-delay-3">
+          <a href="#predictor" class="btn-primary">Try the predictor</a>
+          <a href="https://github.com/saumyadhote/telecom-churn-engine" target="_blank" class="btn-ghost" rel="noopener noreferrer">GitHub →</a>
+        </div>
+      </div>
+
+      <div class="hero-stats reveal reveal-delay-2">
+        <div class="hero-stats-label">Model performance</div>
+        <div class="hero-stat-row">
+          <span class="hero-stat-key">AUC-ROC</span>
+          <span class="hero-stat-val">0.692</span>
+        </div>
+        <div class="hero-stat-row">
+          <span class="hero-stat-key">F1 Score</span>
+          <span class="hero-stat-val">0.639</span>
+        </div>
+        <div class="hero-stat-row">
+          <span class="hero-stat-key">Customers trained</span>
+          <span class="hero-stat-val">100K</span>
+        </div>
+        <div class="hero-stat-row">
+          <span class="hero-stat-key">Projected net uplift</span>
+          <span class="hero-stat-val">$9.9M<span class="hero-stat-sub">/ yr</span></span>
+        </div>
+        <div class="hero-stat-row">
+          <span class="hero-stat-key">Return on investment</span>
+          <span class="hero-stat-val">14×</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it helps ───────────────────────────────────────────────────────── -->
+<section class="how-section">
+  <div class="container">
+    <span class="how-eyebrow reveal">What this does for you</span>
+    <div class="how-grid">
+      <div class="how-card reveal">
+        <div class="how-number">01</div>
+        <h3 class="how-title">Spot at-risk customers up to 60 days early</h3>
+        <p class="how-body">Six standard CRM signals — tenure, device age, usage drift, and billing trends — are scored daily against a LightGBM classifier trained on 100,000 real subscribers. No custom data pipelines required.</p>
+        <span class="how-stat">60 days</span>
+      </div>
+      <div class="how-card reveal reveal-delay-1">
+        <div class="how-number">02</div>
+        <h3 class="how-title">A prescriptive action for every account</h3>
+        <p class="how-body">Every customer lands in High, Medium, or Low risk — each tier paired with a specific retention playbook. Your team knows exactly who to call, what to offer, and when to act. No analyst required.</p>
+        <span class="how-stat">3 tiers</span>
+      </div>
+      <div class="how-card reveal reveal-delay-2">
+        <div class="how-number">03</div>
+        <h3 class="how-title">Turn retention spend into measurable ROI</h3>
+        <p class="how-body">Precision targeting routes expensive interventions only to the subscribers worth saving. High-risk customers get account manager calls; low-risk customers get automated emails. Stop blanket discounting.</p>
+        <span class="how-stat">14× ROI</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Predictor — Operate style ─────────────────────────────────────────── -->
+<section class="predictor-section" id="predictor">
+  <div class="container">
+
+    <!-- Centered title row -->
+    <div class="predictor-title-row reveal">
+      <div class="predictor-title-line"></div>
+      <span class="predictor-title-text">· Score Your Customers ·</span>
+      <div class="predictor-title-line"></div>
+    </div>
+
+    <!-- Canvas card -->
+    <div class="predictor-card-wrap reveal reveal-delay-1">
+      <canvas id="operaCanvas" role="img" aria-label="Customer risk scatter plot showing 300 simulated customers distributed across High, Medium, and Low risk zones"></canvas>
+
+      <!-- Result badge — top left -->
+      <div class="opera-result" id="operaResult">
+        <div class="opera-result-tier" id="operaTier">High Risk</div>
+        <div class="opera-result-prob" id="operaProb">Probability: —</div>
+        <div class="opera-result-action" id="operaAction">—</div>
+      </div>
+
+      <!-- Form card — top right -->
+      <div class="opera-form">
+        <div class="opera-form-header">
+          <span class="opera-form-title">Customer Scorer</span>
+          <span class="opera-form-icon">~</span>
+        </div>
+        <p class="opera-form-subtitle">Score any customer using 6 CRM metrics.</p>
+
+        <div class="opera-field">
+          <div class="opera-label-row">
+            <label for="months">Tenure (months)</label>
+            <button class="info-btn" aria-label="More info about Tenure" data-tip="How long the customer has been a subscriber. Tenure under 12 months correlates strongly with higher churn propensity.">i</button>
+          </div>
+          <input type="number" id="months" value="18" />
+        </div>
+        <div class="opera-field">
+          <div class="opera-label-row">
+            <label for="eqpdays">Device age (days)</label>
+            <button class="info-btn" aria-label="More info about Device age" data-tip="Days since the customer last upgraded their handset. 45% of churners are on devices older than 12 months — they're often shopping for hardware elsewhere.">i</button>
+          </div>
+          <input type="number" id="eqpdays" value="480" />
+        </div>
+        <div class="opera-field">
+          <div class="opera-label-row">
+            <label for="rev_Mean">Avg monthly revenue ($)</label>
+            <button class="info-btn" aria-label="More info about Avg monthly revenue" data-tip="Mean monthly revenue billed over the last 3 months. Sudden revenue drops are a leading indicator of plan downgrades before cancellation.">i</button>
+          </div>
+          <input type="number" id="rev_Mean" value="55.2" step="0.1" />
+        </div>
+        <div class="opera-field">
+          <div class="opera-label-row">
+            <label for="change_mou">Usage change — MOU</label>
+            <button class="info-btn" aria-label="More info about Usage change MOU" data-tip="Change in minutes-of-use vs the 3-month trailing average. Declining usage is the #1 churn predictor — churners' call volume falls 3× faster than stayers.">i</button>
+          </div>
+          <input type="number" id="change_mou" value="-120" />
+        </div>
+        <div class="opera-field">
+          <div class="opera-label-row">
+            <label for="change_rev">Revenue change ($)</label>
+            <button class="info-btn" aria-label="More info about Revenue change" data-tip="Change in monthly revenue vs the 3-month trailing average. Revenue decay tracks usage decline and typically begins 4–6 weeks before cancellation.">i</button>
+          </div>
+          <input type="number" id="change_rev" value="-8.5" step="0.1" />
+        </div>
+        <div class="opera-field">
+          <div class="opera-label-row">
+            <label for="totmrc_Mean">Monthly recurring charge ($)</label>
+            <button class="info-btn" aria-label="More info about Monthly recurring charge" data-tip="The customer's average monthly recurring plan charge. High recurring fees without perceived value accelerate exit — especially when paired with declining usage.">i</button>
+          </div>
+          <input type="number" id="totmrc_Mean" value="42.0" step="0.1" />
+        </div>
+
+        <div class="opera-presets">
+          <button class="opera-preset" onclick="loadPreset('high')">High Risk</button>
+          <button class="opera-preset" onclick="loadPreset('low')">Low Risk</button>
+        </div>
+
+        <button class="opera-submit" id="predictBtn" onclick="runPrediction()">PREDICT RISK &#9654;</button>
+
+        <div class="opera-api-status">
+          <div class="opera-api-dot" id="apiDot"></div>
+          <span class="opera-api-text" id="apiText">Connecting…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slider below card -->
+    <div class="predictor-slider-wrap reveal reveal-delay-2">
+      <div class="predictor-slider-labels">
+        <span class="predictor-slider-label">&#9500;&#9472; High Risk &#9472;&#9508;</span>
+        <span class="predictor-slider-label">&#9500;&#9472; Low Risk &#9472;&#9508;</span>
+      </div>
+      <div class="predictor-slider-track">
+        <div class="predictor-slider-fill" id="sliderFill"></div>
+        <div class="predictor-slider-thumb" id="sliderThumb"></div>
+      </div>
+      <div class="predictor-slider-underline"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Findings ───────────────────────────────────────────────────────────── -->
+<section class="findings-section" id="findings">
+  <div class="container">
+    <div class="findings-header">
+      <div class="reveal">
+        <span class="eyebrow">Exploratory analysis</span>
+        <h2 class="findings-heading">What drives a customer to leave.</h2>
+      </div>
+      <p class="findings-intro reveal reveal-delay-1">
+        Five signals emerged from 100+ raw features as the strongest predictors of 60-day churn. Each one points to a distinct intervention strategy.
+      </p>
+    </div>
+
+    <div class="finding reveal">
+      <div class="finding-num">01</div>
+      <div class="finding-content">
+        <div class="finding-title">Usage decline is the leading signal.</div>
+        <p class="finding-body">
+          The change in minutes-of-use over the trailing three months (<code>change_mou</code>) is the single strongest predictor. Churners' call volume falls at roughly three times the rate of customers who stay — a measurable drift that begins weeks before cancellation.
+        </p>
+      </div>
+      <div class="finding-stat">
+        <span class="finding-stat-val">#1</span>
+        <span class="finding-stat-label">Feature importance</span>
+      </div>
+    </div>
+
+    <div class="finding reveal reveal-delay-1">
+      <div class="finding-num">02</div>
+      <div class="finding-content">
+        <div class="finding-title">Device age predicts upgrade intent.</div>
+        <p class="finding-body">
+          45% of churners are on handsets that are one to two or more years old, compared to 30% of retained customers. Customers on aging devices are implicitly shopping for new hardware — often from a competing carrier.
+        </p>
+      </div>
+      <div class="finding-stat">
+        <span class="finding-stat-val">45%</span>
+        <span class="finding-stat-label">Churners on old devices</span>
+      </div>
+    </div>
+
+    <div class="finding reveal">
+      <div class="finding-num">03</div>
+      <div class="finding-content">
+        <div class="finding-title">Revenue decay tracks disengagement.</div>
+        <p class="finding-body">
+          The declining revenue trend (<code>change_rev</code>) mirrors falling usage — customers gradually reduce their spend before they churn. This drift is detectable 4–6 weeks in advance if monitored weekly.
+        </p>
+      </div>
+      <div class="finding-stat">
+        <span class="finding-stat-val">4–6w</span>
+        <span class="finding-stat-label">Early signal window</span>
+      </div>
+    </div>
+
+    <div class="finding reveal reveal-delay-1">
+      <div class="finding-num">04</div>
+      <div class="finding-content">
+        <div class="finding-title">Value-for-money mismatch, not price.</div>
+        <p class="finding-body">
+          A revenue-per-minute efficiency feature reveals that churners pay <em>more</em> per minute of actual use, not less. They receive less value from their plan — making targeted plan optimisation a more effective intervention than blanket discounts.
+        </p>
+      </div>
+      <div class="finding-stat">
+        <span class="finding-stat-val">&#8593; rpm</span>
+        <span class="finding-stat-label">Churners' rev per min</span>
+      </div>
+    </div>
+
+    <div class="callout reveal">
+      <p class="callout-text">
+        "Churn is not a pricing problem. Churners and stayers pay nearly identical monthly amounts — $58.21 vs $59.22. Discounts alone will not retain them."
+      </p>
+      <div class="callout-note">
+        Key insight from EDA<br />across 100,000 customers
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Performance — comparison table ────────────────────────────────────── -->
+<section class="performance-section" id="performance">
+  <div class="container">
+    <span class="eyebrow reveal">Model evaluation</span>
+    <h2 class="findings-heading reveal reveal-delay-1">From baseline to production.</h2>
+
+    <div class="perf-grid">
+      <!-- Left: comparison table -->
+      <div class="reveal reveal-delay-1">
+        <div class="perf-compare-card">
+          <table class="perf-compare-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>
+                  <div class="perf-col-header">
+                    <span class="perf-col-name">Logistic Regression</span>
+                    <span class="perf-tag baseline">Baseline</span>
+                  </div>
+                </th>
+                <th>
+                  <div class="perf-col-header">
+                    <span class="perf-col-name">LightGBM</span>
+                    <span class="perf-tag final">Production</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AUC-ROC</td>
+                <td><span class="perf-val">0.604</span></td>
+                <td><span class="perf-val">0.692</span><span class="perf-delta">+14.5%</span></td>
+              </tr>
+              <tr>
+                <td>F1 Score</td>
+                <td><span class="perf-val">0.562</span></td>
+                <td><span class="perf-val">0.639</span><span class="perf-delta">+13.7%</span></td>
+              </tr>
+              <tr>
+                <td>Accuracy</td>
+                <td><span class="perf-val">57.7%</span></td>
+                <td><span class="perf-val">63.7%</span><span class="perf-delta">+10.4%</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="perf-compare-footer">
+            80,000 training / 20,000 test &mdash; stratified split
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: notes -->
+      <div class="reveal reveal-delay-2" style="padding-top: var(--s3);">
+        <p class="perf-note">
+          Evaluated on a stratified 80/20 train-test split — 20,000 held-out customers the model had never seen during training.
+        </p>
+        <p class="perf-note">
+          LightGBM's gradient-boosted tree structure captures the non-linear interaction between usage decline, device age, and billing patterns that a linear classifier cannot express.
+        </p>
+        <p class="perf-note" style="margin-top: var(--s5); font-size: 13px; color: var(--text-3);">
+          The 50% base churn rate reflects the dataset's natural distribution — the model must discriminate effectively at random, making AUC-ROC the primary evaluation metric.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Business impact — detailed deployment ──────────────────────────────── -->
+<section class="impact-section" id="impact">
+  <div class="container">
+
+    <!-- Section header -->
+    <div class="impact-section-header reveal">
+      <span class="eyebrow">Real-world deployment</span>
+      <h2 class="impact-section-heading">Built to run on your data.</h2>
+      <p class="impact-section-body">
+        The churn engine is not a research prototype. It is a production-ready scoring API designed to plug into any telecom CRM, billing pipeline, or data warehouse. Bring six fields from a subscriber record; receive a risk score, tier classification, and recommended action in under 50ms.
+      </p>
+    </div>
+
+    <!-- Workflow rows -->
+    <div class="workflow-rows">
+      <div class="workflow-row reveal">
+        <div class="workflow-num">01</div>
+        <div class="workflow-title">Daily batch scoring</div>
+        <div class="workflow-desc">
+          Export your active subscriber base each morning and submit it to <code>/predict/batch</code>. The API accepts up to 1,000 customers per request and returns a risk-segmented list that feeds directly into your retention team's daily queue. High-risk customers are surfaced first.
+        </div>
+      </div>
+
+      <div class="workflow-row reveal reveal-delay-1">
+        <div class="workflow-num">02</div>
+        <div class="workflow-title">Event-triggered scoring</div>
+        <div class="workflow-desc">
+          Wire <code>/predict</code> into your billing or usage pipeline. When a customer's monthly minutes drop by more than 15%, or their device age crosses the 12-month mark, the event fires a score. The result routes automatically to the relevant tier — no analyst required.
+        </div>
+      </div>
+
+      <div class="workflow-row reveal reveal-delay-2">
+        <div class="workflow-num">03</div>
+        <div class="workflow-title">Campaign budget allocation</div>
+        <div class="workflow-desc">
+          Risk tiers translate directly to intervention cost. High-risk customers justify a dedicated account manager call ($40–60 per intervention). Medium-risk customers receive an automated loyalty offer ($5–10). Low-risk customers are left undisturbed. Precision targeting reduces waste.
+        </div>
+      </div>
+    </div>
+
+    <!-- What data section -->
+    <div class="data-subsection reveal">
+      <h3 class="data-heading">Six fields. Any CRM.</h3>
+      <p class="data-body">
+        No feature engineering required on your end. Submit a raw JSON object with these six standard subscriber metrics:
+      </p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>What it means</th>
+            <th>Where to find it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>months</td>
+            <td>Subscriber tenure in months</td>
+            <td>Account creation date</td>
+          </tr>
+          <tr>
+            <td>eqpdays</td>
+            <td>Days since last device upgrade</td>
+            <td>Device inventory system</td>
+          </tr>
+          <tr>
+            <td>rev_Mean</td>
+            <td>Average monthly revenue over last 3 months</td>
+            <td>Billing system</td>
+          </tr>
+          <tr>
+            <td>change_mou</td>
+            <td>Change in monthly minutes vs 3-month average</td>
+            <td>Usage records</td>
+          </tr>
+          <tr>
+            <td>change_rev</td>
+            <td>Change in monthly revenue vs 3-month average</td>
+            <td>Billing system</td>
+          </tr>
+          <tr>
+            <td>totmrc_Mean</td>
+            <td>Average monthly recurring charge</td>
+            <td>Billing system</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-wrap">
+        <div class="code-block">
+          <div class="code-block-header">Request — bash / curl</div>
+          <pre>curl -X POST http://your-host:8000/predict \
+  -H <span class="code-str">"Content-Type: application/json"</span> \
+  -d <span class="code-str">'{
+    "months": <span class="code-num">18</span>,
+    "eqpdays": <span class="code-num">480</span>,
+    "rev_Mean": <span class="code-num">55.2</span>,
+    "change_mou": <span class="code-num">-120</span>,
+    "change_rev": <span class="code-num">-8.5</span>,
+    "totmrc_Mean": <span class="code-num">42.0</span>
+  }'</span></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-block-header">Response — JSON</div>
+          <pre>{
+  <span class="code-key">"churn_probability"</span>: <span class="code-num">0.74</span>,
+  <span class="code-key">"risk_tier"</span>: <span class="code-str">"High Risk"</span>,
+  <span class="code-key">"recommended_action"</span>: <span class="code-str">"Priority outreach:
+    dedicated account manager
+    call, device upgrade offer,
+    customised plan review."</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Impact numbers -->
+    <div class="reveal">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s10);align-items:end;margin-bottom:var(--s4);">
+        <div>
+          <span class="eyebrow">Financial impact</span>
+          <h3 class="impact-main-heading">The financial argument for early intervention.</h3>
+          <p class="impact-main-body">
+            At a 30% retention success rate and $15 per customer intervention, the model's risk segmentation generates a measurable return. High-risk customers are prioritised for costly but warranted outreach; low-risk customers receive automated, low-cost touchpoints.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="impact-grid">
+      <div class="impact-cell reveal">
+        <span class="impact-big">$16.7M</span>
+        <div class="impact-label">Revenue at risk from high-risk segment</div>
+        <div class="impact-note">29,290 customers · 82.9% churn rate</div>
+      </div>
+      <div class="impact-cell reveal reveal-delay-1">
+        <span class="impact-big">$10.6M</span>
+        <div class="impact-label">Revenue recoverable</div>
+        <div class="impact-note">30% retention success rate</div>
+      </div>
+      <div class="impact-cell reveal reveal-delay-2">
+        <span class="impact-big">$760K</span>
+        <div class="impact-label">Intervention cost</div>
+        <div class="impact-note">$15 per customer · 50,700 targeted</div>
+      </div>
+      <div class="impact-cell reveal reveal-delay-3">
+        <span class="impact-big">14×</span>
+        <div class="impact-label">Return on investment</div>
+        <div class="impact-note">$9.9M net uplift</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Risk tiers ─────────────────────────────────────────────────────────── -->
+<section class="tiers-section">
+  <div class="container">
+    <span class="eyebrow reveal">Risk segmentation</span>
+    <h2 class="findings-heading reveal reveal-delay-1">Three tiers, three strategies.</h2>
+
+    <table class="tiers-table reveal">
+      <thead>
+        <tr>
+          <th>Tier</th>
+          <th>Score</th>
+          <th>Customers</th>
+          <th>Churn rate</th>
+          <th class="revenue">Revenue at risk</th>
+          <th>Recommended action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="tier-badge">
+              <div class="tier-pip" style="background:#C93A3A"></div>
+              High Risk
+            </div>
+          </td>
+          <td>&gt; 60%</td>
+          <td>29,290</td>
+          <td>82.9%</td>
+          <td class="revenue">$16.7M / yr</td>
+          <td class="action">Dedicated account manager call, device upgrade offer, plan review</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="tier-badge">
+              <div class="tier-pip" style="background:#D4920A"></div>
+              Medium Risk
+            </div>
+          </td>
+          <td>40 – 60%</td>
+          <td>41,023</td>
+          <td>49.5%</td>
+          <td class="revenue">$14.0M / yr</td>
+          <td class="action">Loyalty SMS, plan optimisation, satisfaction survey</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="tier-badge">
+              <div class="tier-pip" style="background:#1E6B3C"></div>
+              Low Risk
+            </div>
+          </td>
+          <td>&lt; 40%</td>
+          <td>29,687</td>
+          <td>16.8%</td>
+          <td class="revenue">$3.7M / yr</td>
+          <td class="action">Automated email, referral programme</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── Stack ──────────────────────────────────────────────────────────────── -->
+<section class="stack-section">
+  <div class="container">
+    <div class="stack-inner reveal">
+      <h3 class="stack-heading">Built with</h3>
+      <div class="stack-list">
+        <span class="stack-item">LightGBM 4.x</span>
+        <span class="stack-item">scikit-learn</span>
+        <span class="stack-item">FastAPI</span>
+        <span class="stack-item">Uvicorn</span>
+        <span class="stack-item">pandas</span>
+        <span class="stack-item">NumPy</span>
+        <span class="stack-item">Pydantic v2</span>
+        <span class="stack-item">joblib</span>
+        <span class="stack-item">pytest</span>
+        <span class="stack-item">Docker</span>
+        <span class="stack-item">Python 3.11</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <span class="footer-logo">
+        <img src="./churn.svg" alt="Churn Engine logo" />
+        Churn Engine
+      </span>
+      <span class="footer-meta">GCI World 2026 · Matsuo-Iwasawa Lab, University of Tokyo</span>
+      <div class="footer-links">
+        <a href="#predictor">Demo</a>
+        <a href="#performance">Model</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Nav scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 8);
+}, { passive: true });
+
+// ── Scroll reveal
+const observer = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
+  { threshold: 0.12 }
+);
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Canvas setup
+const canvas = document.getElementById('operaCanvas');
+const ctx    = canvas.getContext('2d');
+const dpr    = window.devicePixelRatio || 1;
+let W = 0, H = 0;
+let circles = [];
+let predictedBeacon = null; // { xFrac, yFrac, tier }
+
+function buildSceneData() {
+  circles = [];
+  const zones = [
+    { xMin: 0.04, xMax: 0.30, count: 45, color: '#C93A3A' },
+    { xMin: 0.37, xMax: 0.63, count: 50, color: '#D4920A' },
+    { xMin: 0.70, xMax: 0.94, count: 35, color: '#1E6B3C' },
+  ];
+  zones.forEach(({ xMin, xMax, count, color }) => {
+    for (let i = 0; i < count; i++) {
+      circles.push({
+        cx: (xMin + Math.random() * (xMax - xMin)) * W,
+        cy: (0.12 + Math.random() * 0.76) * H,
+        r:  4 + Math.random() * 3,
+        color,
+      });
+    }
+  });
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#0d1f14';
+  ctx.fillRect(0, 0, W, H);
+
+  // Dot grid
+  const GRID = 24;
+  ctx.fillStyle = 'rgba(255,255,255,0.05)';
+  for (let gx = GRID; gx < W; gx += GRID) {
+    for (let gy = GRID; gy < H; gy += GRID) {
+      ctx.beginPath();
+      ctx.arc(gx, gy, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Zone bands
+  const zoneW = W / 3;
+  [
+    'rgba(201,58,58,0.07)',
+    'rgba(160,104,0,0.07)',
+    'rgba(30,107,60,0.07)',
+  ].forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(i * zoneW, 0, zoneW, H);
+  });
+
+  // Zone dividers
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 6]);
+  [1, 2].forEach(i => {
+    ctx.beginPath();
+    ctx.moveTo(i * zoneW, 0);
+    ctx.lineTo(i * zoneW, H);
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // Zone labels
+  ctx.textBaseline = 'top';
+  ctx.font = '500 9px Inter, system-ui, sans-serif';
+  [
+    { label: 'HIGH RISK',   x: 12,            color: 'rgba(201,58,58,0.65)' },
+    { label: 'MEDIUM RISK', x: zoneW + 12,    color: 'rgba(212,146,10,0.65)' },
+    { label: 'LOW RISK',    x: zoneW * 2 + 12, color: 'rgba(30,107,60,0.65)' },
+  ].forEach(({ label, x, color }) => {
+    ctx.fillStyle = color;
+    ctx.fillText(label, x, 14);
+  });
+
+  // Customer dots — opaque, solid
+  circles.forEach(({ cx, cy, r, color }) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  });
+
+  // Predicted beacon
+  if (predictedBeacon) {
+    const bx = predictedBeacon.xFrac * W;
+    const by = predictedBeacon.yFrac * H;
+    const tierColor =
+      predictedBeacon.tier === 'High Risk'   ? '#C93A3A' :
+      predictedBeacon.tier === 'Medium Risk' ? '#D4920A' :
+                                               '#1E6B3C';
+
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    ctx.arc(bx, by, 22, 0, Math.PI * 2);
+    ctx.strokeStyle = tierColor;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.globalAlpha = 0.65;
+    ctx.beginPath();
+    ctx.arc(bx, by, 14, 0, Math.PI * 2);
+    ctx.strokeStyle = tierColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.arc(bx, by, 7, 0, Math.PI * 2);
+    ctx.fillStyle = tierColor;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(bx, by, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+}
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  W = rect.width;
+  H = rect.height;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+  buildSceneData();
+  draw();
+}
+
+// ── API
+const API = 'http://localhost:8000';
+
+async function checkApi() {
+  const dot = document.getElementById('apiDot');
+  const txt = document.getElementById('apiText');
+  try {
+    const r = await fetch(`${API}/`, { signal: AbortSignal.timeout(3000) });
+    if (r.ok) {
+      dot.className   = 'opera-api-dot';
+      txt.textContent = 'API live · localhost:8000';
+      return;
+    }
+  } catch {}
+  dot.className   = 'opera-api-dot offline';
+  txt.textContent = 'API offline — run uvicorn first';
+}
+
+function mockPredict(p) {
+  let score = 0.48;
+  if      (p.change_mou < -200) score += 0.22;
+  else if (p.change_mou < -80)  score += 0.12;
+  else if (p.change_mou < -20)  score += 0.05;
+  else if (p.change_mou >  30)  score -= 0.14;
+  else if (p.change_mou >  10)  score -= 0.07;
+  if      (p.eqpdays > 600) score += 0.14;
+  else if (p.eqpdays > 400) score += 0.08;
+  else if (p.eqpdays > 200) score += 0.03;
+  else if (p.eqpdays <  90) score -= 0.10;
+  if      (p.months <  6)  score += 0.10;
+  else if (p.months < 12)  score += 0.05;
+  else if (p.months > 36)  score -= 0.12;
+  else if (p.months > 24)  score -= 0.06;
+  if      (p.change_rev < -15) score += 0.08;
+  else if (p.change_rev <  -5) score += 0.04;
+  else if (p.change_rev >   5) score -= 0.05;
+  score += (Math.random() - 0.5) * 0.04;
+  const prob = Math.max(0.04, Math.min(0.96, score));
+  const tier = prob > 0.60 ? 'High Risk' : prob > 0.40 ? 'Medium Risk' : 'Low Risk';
+  const actions = {
+    'High Risk':   'Priority outreach: dedicated account manager call, device upgrade offer, customised plan review.',
+    'Medium Risk': 'Loyalty SMS campaign, plan optimisation offer, satisfaction survey within 7 days.',
+    'Low Risk':    'Automated email touchpoint, referral programme invitation.',
+  };
+  return { churn_probability: parseFloat(prob.toFixed(3)), churn_prediction: prob > 0.5 ? 1 : 0, risk_tier: tier, recommended_action: actions[tier] };
+}
+
+async function runPrediction() {
+  const btn = document.getElementById('predictBtn');
+  btn.disabled    = true;
+  btn.textContent = 'Scoring…';
+
+  const payload = {
+    months:      +document.getElementById('months').value      || 0,
+    eqpdays:     +document.getElementById('eqpdays').value     || 0,
+    rev_Mean:    +document.getElementById('rev_Mean').value    || 0,
+    change_mou:  +document.getElementById('change_mou').value  || 0,
+    change_rev:  +document.getElementById('change_rev').value  || 0,
+    totmrc_Mean: +document.getElementById('totmrc_Mean').value || 0,
+  };
+
+  try {
+    const res = await fetch(`${API}/predict`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+      signal:  AbortSignal.timeout(3000),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    showResult(await res.json());
+  } catch {
+    await new Promise(r => setTimeout(r, 380));
+    showResult(mockPredict(payload));
+    const dot = document.getElementById('apiDot');
+    const txt = document.getElementById('apiText');
+    dot.className   = 'opera-api-dot offline';
+    txt.textContent = 'Demo mode — API offline';
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'PREDICT RISK ▶';
+  }
+}
+
+function showResult(data) {
+  const { churn_probability: p, risk_tier, recommended_action } = data;
+
+  const tierColors = {
+    'High Risk':   '#C93A3A',
+    'Medium Risk': '#D4920A',
+    'Low Risk':    '#3D9E5F',
+  };
+
+  const tierEl   = document.getElementById('operaTier');
+  const probEl   = document.getElementById('operaProb');
+  const actionEl = document.getElementById('operaAction');
+  const resultEl = document.getElementById('operaResult');
+
+  tierEl.textContent   = risk_tier;
+  tierEl.style.color   = tierColors[risk_tier] || '#fff';
+  probEl.textContent   = `Probability: ${(p * 100).toFixed(1)}%`;
+  actionEl.textContent = recommended_action;
+  resultEl.classList.add('show');
+
+  const sliderColors = { 'High Risk': '#C93A3A', 'Medium Risk': '#D4920A', 'Low Risk': '#2a5230' };
+  const tierColor    = sliderColors[risk_tier] || '#2a5230';
+  const fill  = document.getElementById('sliderFill');
+  const thumb = document.getElementById('sliderThumb');
+  fill.style.background  = tierColor;
+  thumb.style.background = tierColor;
+  fill.style.width       = `${(p * 100).toFixed(1)}%`;
+  thumb.style.left       = `${((1 - p) * 100).toFixed(1)}%`;
+
+  // Place beacon and redraw once
+  predictedBeacon = {
+    xFrac: 0.10 + (1 - p) * 0.80,
+    yFrac: 0.25 + Math.random() * 0.50,
+    tier:  risk_tier,
+  };
+  draw();
+}
+
+// ── Presets
+const PRESETS = {
+  high: { months: 6,  eqpdays: 720, rev_Mean: 62, change_mou: -240, change_rev: -18, totmrc_Mean: 58 },
+  low:  { months: 42, eqpdays: 80,  rev_Mean: 44, change_mou:  +55, change_rev:  +4, totmrc_Mean: 32 },
+};
+
+function loadPreset(key) {
+  const preset = PRESETS[key];
+  Object.entries(preset).forEach(([k, v]) => {
+    const el = document.getElementById(k);
+    if (el) el.value = v;
+  });
+  runPrediction();
+}
+
+document.querySelectorAll('.opera-field input').forEach(inp => {
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') runPrediction(); });
+});
+
+// ── Info button tooltips
+const tooltip = document.createElement('div');
+tooltip.className = 'field-tooltip';
+document.body.appendChild(tooltip);
+
+document.querySelectorAll('.info-btn').forEach(btn => {
+  btn.addEventListener('mouseenter', () => {
+    const rect = btn.getBoundingClientRect();
+    tooltip.textContent = btn.dataset.tip;
+    tooltip.style.display = 'block';
+    requestAnimationFrame(() => {
+      const tw = tooltip.offsetWidth;
+      tooltip.style.top  = `${rect.top + rect.height / 2 - tooltip.offsetHeight / 2}px`;
+      tooltip.style.left = `${rect.left - tw - 10}px`;
+      tooltip.classList.add('visible');
+    });
+  });
+  btn.addEventListener('mouseleave', () => {
+    tooltip.classList.remove('visible');
+  });
+});
+
+// ── Init
+window.addEventListener('load', () => {
+  resizeCanvas();
+  checkApi();
+  setInterval(checkApi, 15000);
+});
+
+window.addEventListener('resize', () => {
+  resizeCanvas();
+});
+</script>
+</body>
+</html>
