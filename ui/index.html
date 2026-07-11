@@ -6,7 +6,7 @@
   <title>Telecom Churn Engine</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;1,14..32,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;1,14..32,400&family=Work+Sans:wght@600&display=swap" rel="stylesheet" />
   <style>
     /* ── Reset & tokens ──────────────────────────────────────────────────── */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -109,12 +109,11 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(12px);
+      background: #043927;
       border-bottom: 1px solid transparent;
       transition: border-color 200ms ease;
     }
-    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav.scrolled { border-bottom-color: rgba(255,255,255,0.1); }
 
     .nav-inner {
       max-width: var(--max-w);
@@ -127,11 +126,22 @@
     }
 
     .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Work Sans', -apple-system, system-ui, sans-serif;
       font-size: 15px;
       font-weight: 600;
-      color: var(--text-1);
+      color: #fff;
       text-decoration: none;
       letter-spacing: -0.01em;
+    }
+
+    .nav-logo img {
+      height: 28px;
+      width: auto;
+      display: block;
+      filter: brightness(0) invert(1);
     }
 
     .nav-links {
@@ -143,22 +153,22 @@
 
     .nav-links a {
       font-size: 14px;
-      color: var(--text-2);
+      color: rgba(255,255,255,0.65);
       text-decoration: none;
       transition: color 150ms ease;
     }
-    .nav-links a:hover { color: var(--text-1); }
+    .nav-links a:hover { color: rgba(255,255,255,1); }
 
     .nav-cta {
       font-size: 13px !important;
       font-weight: 500 !important;
-      color: var(--white) !important;
-      background: var(--text-1);
+      color: #043927 !important;
+      background: rgba(255,255,255,0.92);
       padding: 7px 16px;
       border-radius: var(--radius-sm);
       transition: background 150ms ease !important;
     }
-    .nav-cta:hover { background: #333 !important; }
+    .nav-cta:hover { background: #fff !important; }
 
     /* ── Hero ────────────────────────────────────────────────────────────── */
     .hero {
@@ -297,7 +307,7 @@
       align-items: center;
       justify-content: center;
       gap: 16px;
-      margin-bottom: 28px;
+      margin-bottom: var(--s4);
     }
 
     .predictor-title-line {
@@ -339,13 +349,17 @@
       position: absolute;
       top: 18px;
       right: 18px;
+      bottom: 18px;
       width: 210px;
       background: #162818;
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.12);
       padding: 14px;
       z-index: 10;
+      overflow-y: auto;
+      scrollbar-width: none;
     }
+    .opera-form::-webkit-scrollbar { display: none; }
 
     .opera-form-header {
       display: flex;
@@ -383,7 +397,7 @@
     }
 
     .opera-field label {
-      font-size: 8px;
+      font-size: 9px;
       font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -570,7 +584,7 @@
     }
 
     .opera-result-action {
-      font-size: 9px;
+      font-size: 10px;
       color: rgba(255,255,255,0.45);
       line-height: 1.55;
     }
@@ -634,6 +648,72 @@
       border-radius: 1px;
       margin-top: 8px;
       opacity: 0.6;
+    }
+
+    /* ── How it helps ────────────────────────────────────────────────────── */
+    .how-section {
+      padding: var(--s12) 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .how-eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: var(--s6);
+      display: block;
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--s4);
+    }
+
+    .how-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--s6);
+    }
+
+    .how-number {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      color: var(--text-3);
+      margin-bottom: var(--s3);
+    }
+
+    .how-title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      color: var(--text-1);
+      margin-bottom: var(--s2);
+    }
+
+    .how-body {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.7;
+    }
+
+    .how-stat {
+      display: inline-block;
+      margin-top: var(--s3);
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+    }
+
+    @media (max-width: 768px) {
+      .how-grid { grid-template-columns: 1fr; }
     }
 
     /* ── Findings ────────────────────────────────────────────────────────── */
@@ -968,7 +1048,8 @@
 
     .data-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       font-size: 14px;
       margin-bottom: var(--s6);
       border: 1px solid var(--border);
@@ -1055,13 +1136,11 @@
     }
 
     .impact-cell {
-      padding: var(--s8) 0;
+      padding: var(--s8) var(--s6) var(--s8) 0;
       border-right: 1px solid var(--border);
-      padding-right: var(--s6);
-      margin-right: var(--s6);
     }
-    .impact-cell:first-child { padding-right: var(--s8); margin-right: var(--s8); }
-    .impact-cell:last-child  { border-right: none; padding-right: 0; margin-right: 0; }
+    .impact-cell:first-child { padding-right: var(--s8); }
+    .impact-cell:last-child  { border-right: none; padding-right: 0; }
 
     .impact-big {
       font-size: clamp(36px, 4vw, 52px);
@@ -1199,9 +1278,19 @@
     }
 
     .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-size: 15px;
       font-weight: 600;
       color: var(--white);
+    }
+
+    .footer-logo img {
+      height: 24px;
+      width: auto;
+      display: block;
+      filter: brightness(0) invert(1);
     }
 
     .footer-meta {
@@ -1221,6 +1310,79 @@
       transition: color 150ms ease;
     }
     .footer-links a:hover { color: rgba(255,255,255,0.85); }
+
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .hero-grid { grid-template-columns: 1fr; gap: var(--s8); }
+      .hero-stats { max-width: 480px; }
+      .findings-header { grid-template-columns: 1fr; gap: var(--s5); }
+      .perf-grid { grid-template-columns: 1fr; }
+      .perf-note { max-width: 100%; }
+      .impact-grid { grid-template-columns: 1fr 1fr; }
+      .impact-cell { border-right: none; margin-right: 0; padding-right: 0; padding-bottom: var(--s6); border-bottom: 1px solid var(--border); }
+      .impact-cell:first-child { padding-right: 0; margin-right: 0; border-bottom: 1px solid var(--border); }
+      .impact-cell:last-child { border-bottom: none; }
+      .stack-inner { grid-template-columns: 1fr; gap: var(--s5); }
+      .finding { grid-template-columns: 40px 1fr; }
+      .finding-stat { display: none; }
+      .workflow-row { grid-template-columns: 40px 1fr; }
+      .workflow-title { font-size: 15px; }
+      .code-wrap { grid-template-columns: 1fr; }
+      .tiers-table td.action { display: none; }
+      .predictor-card-wrap { height: auto; min-height: 420px; }
+      #operaCanvas { height: 420px; }
+      .callout { grid-template-columns: 1fr; gap: var(--s4); }
+      .callout-note { text-align: left; min-width: 0; }
+      .footer-inner { flex-direction: column; gap: var(--s3); text-align: center; }
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 0 var(--s3); }
+      .nav-inner { padding: 0 var(--s3); }
+      .nav-links { gap: var(--s3); }
+      .nav-links li:not(:last-child) { display: none; }
+      .hero { padding: var(--s10) 0 var(--s8); }
+      .hero-heading { font-size: 36px; }
+      .hero-body { font-size: 16px; }
+      .findings-section, .performance-section, .impact-section, .tiers-section { padding: var(--s10) 0; }
+      .findings-heading, .findings-header .reveal h2, .impact-section-heading, .impact-main-heading { font-size: 28px; }
+      .finding { grid-template-columns: 32px 1fr; gap: var(--s3); padding: var(--s5) 0; }
+      .finding-body { font-size: 15px; }
+      .workflow-row { grid-template-columns: 32px 1fr; gap: var(--s3); padding: var(--s4) 0; }
+      .impact-grid { grid-template-columns: 1fr 1fr; gap: 0; }
+      .impact-big { font-size: 32px; }
+      .hero-actions { flex-direction: column; align-items: flex-start; gap: var(--s2); }
+      .predictor-section { padding: var(--s8) 0; }
+      .predictor-card-wrap { border-radius: 12px; height: auto; }
+      #operaCanvas { height: 360px; }
+      .opera-form { width: 190px; right: 12px; top: 12px; }
+      .opera-result { left: 12px; top: 12px; width: 160px; }
+      .tiers-table { font-size: 13px; }
+      .data-table { font-size: 13px; }
+      .stack-section { padding: var(--s8) 0; }
+    }
+
+    @media (max-width: 480px) {
+      .nav-links { gap: var(--s2); }
+      .hero-heading { font-size: 30px; letter-spacing: -0.025em; }
+      .btn-primary, .btn-ghost { font-size: 13px; }
+      .hero-stat-val { font-size: 18px; }
+      .predictor-card-wrap { border-radius: 10px; }
+      #operaCanvas { height: 320px; }
+      .opera-form { width: 170px; padding: 10px; right: 10px; top: 10px; }
+      .opera-result { width: 150px; left: 10px; top: 10px; }
+      .impact-grid { grid-template-columns: 1fr; }
+      .impact-cell { border-bottom: 1px solid var(--border); padding: var(--s5) 0; }
+      .impact-cell:last-child { border-bottom: none; }
+      .impact-big { font-size: 40px; }
+      .workflow-row { grid-template-columns: 28px 1fr; }
+      .code-wrap { gap: var(--s3); }
+      .tiers-table th, .tiers-table td { padding-right: var(--s2); }
+      .finding { gap: var(--s2); }
+      .callout { padding: var(--s4); }
+      .footer-inner { gap: var(--s2); }
+      .footer-links { gap: var(--s3); }
+    }
   </style>
 </head>
 <body>
@@ -1228,13 +1390,16 @@
 <!-- ── Nav ───────────────────────────────────────────────────────────────── -->
 <nav class="nav" id="nav">
   <div class="nav-inner">
-    <a href="#" class="nav-logo">Churn Engine</a>
+    <a href="#" class="nav-logo">
+      <img src="./churn.svg" alt="Churn Engine logo" />
+      Churn Engine
+    </a>
     <ul class="nav-links">
       <li><a href="#predictor">Predictor</a></li>
       <li><a href="#findings">Findings</a></li>
       <li><a href="#performance">Model</a></li>
       <li><a href="#impact">Impact</a></li>
-      <li><a href="http://localhost:8000/docs" target="_blank" class="nav-cta">API Docs ↗</a></li>
+      <li><a href="#predictor" class="nav-cta">Try Demo</a></li>
     </ul>
   </div>
 </nav>
@@ -1253,7 +1418,7 @@
         </p>
         <div class="hero-actions reveal reveal-delay-3">
           <a href="#predictor" class="btn-primary">Try the predictor</a>
-          <a href="http://localhost:8000/docs" target="_blank" class="btn-ghost">View API docs →</a>
+          <a href="https://github.com/saumyadhote/telecom-churn-engine" target="_blank" class="btn-ghost" rel="noopener noreferrer">GitHub →</a>
         </div>
       </div>
 
@@ -1284,6 +1449,33 @@
   </div>
 </section>
 
+<!-- ── How it helps ───────────────────────────────────────────────────────── -->
+<section class="how-section">
+  <div class="container">
+    <span class="how-eyebrow reveal">What this does for you</span>
+    <div class="how-grid">
+      <div class="how-card reveal">
+        <div class="how-number">01</div>
+        <h3 class="how-title">Spot at-risk customers up to 60 days early</h3>
+        <p class="how-body">Six standard CRM signals — tenure, device age, usage drift, and billing trends — are scored daily against a LightGBM classifier trained on 100,000 real subscribers. No custom data pipelines required.</p>
+        <span class="how-stat">60 days</span>
+      </div>
+      <div class="how-card reveal reveal-delay-1">
+        <div class="how-number">02</div>
+        <h3 class="how-title">A prescriptive action for every account</h3>
+        <p class="how-body">Every customer lands in High, Medium, or Low risk — each tier paired with a specific retention playbook. Your team knows exactly who to call, what to offer, and when to act. No analyst required.</p>
+        <span class="how-stat">3 tiers</span>
+      </div>
+      <div class="how-card reveal reveal-delay-2">
+        <div class="how-number">03</div>
+        <h3 class="how-title">Turn retention spend into measurable ROI</h3>
+        <p class="how-body">Precision targeting routes expensive interventions only to the subscribers worth saving. High-risk customers get account manager calls; low-risk customers get automated emails. Stop blanket discounting.</p>
+        <span class="how-stat">14× ROI</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── Predictor — Operate style ─────────────────────────────────────────── -->
 <section class="predictor-section" id="predictor">
   <div class="container">
@@ -1297,7 +1489,7 @@
 
     <!-- Canvas card -->
     <div class="predictor-card-wrap reveal reveal-delay-1">
-      <canvas id="operaCanvas"></canvas>
+      <canvas id="operaCanvas" role="img" aria-label="Customer risk scatter plot showing 300 simulated customers distributed across High, Medium, and Low risk zones"></canvas>
 
       <!-- Result badge — top left -->
       <div class="opera-result" id="operaResult">
@@ -1316,43 +1508,43 @@
 
         <div class="opera-field">
           <div class="opera-label-row">
-            <label>Tenure (months)</label>
-            <button class="info-btn" data-tip="How long the customer has been a subscriber. Tenure under 12 months correlates strongly with higher churn propensity.">i</button>
+            <label for="months">Tenure (months)</label>
+            <button class="info-btn" aria-label="More info about Tenure" data-tip="How long the customer has been a subscriber. Tenure under 12 months correlates strongly with higher churn propensity.">i</button>
           </div>
           <input type="number" id="months" value="18" />
         </div>
         <div class="opera-field">
           <div class="opera-label-row">
-            <label>Device age (days)</label>
-            <button class="info-btn" data-tip="Days since the customer last upgraded their handset. 45% of churners are on devices older than 12 months — they're often shopping for hardware elsewhere.">i</button>
+            <label for="eqpdays">Device age (days)</label>
+            <button class="info-btn" aria-label="More info about Device age" data-tip="Days since the customer last upgraded their handset. 45% of churners are on devices older than 12 months — they're often shopping for hardware elsewhere.">i</button>
           </div>
           <input type="number" id="eqpdays" value="480" />
         </div>
         <div class="opera-field">
           <div class="opera-label-row">
-            <label>Avg monthly revenue ($)</label>
-            <button class="info-btn" data-tip="Mean monthly revenue billed over the last 3 months. Sudden revenue drops are a leading indicator of plan downgrades before cancellation.">i</button>
+            <label for="rev_Mean">Avg monthly revenue ($)</label>
+            <button class="info-btn" aria-label="More info about Avg monthly revenue" data-tip="Mean monthly revenue billed over the last 3 months. Sudden revenue drops are a leading indicator of plan downgrades before cancellation.">i</button>
           </div>
           <input type="number" id="rev_Mean" value="55.2" step="0.1" />
         </div>
         <div class="opera-field">
           <div class="opera-label-row">
-            <label>Usage change — MOU</label>
-            <button class="info-btn" data-tip="Change in minutes-of-use vs the 3-month trailing average. Declining usage is the #1 churn predictor — churners' call volume falls 3× faster than stayers.">i</button>
+            <label for="change_mou">Usage change — MOU</label>
+            <button class="info-btn" aria-label="More info about Usage change MOU" data-tip="Change in minutes-of-use vs the 3-month trailing average. Declining usage is the #1 churn predictor — churners' call volume falls 3× faster than stayers.">i</button>
           </div>
           <input type="number" id="change_mou" value="-120" />
         </div>
         <div class="opera-field">
           <div class="opera-label-row">
-            <label>Revenue change ($)</label>
-            <button class="info-btn" data-tip="Change in monthly revenue vs the 3-month trailing average. Revenue decay tracks usage decline and typically begins 4–6 weeks before cancellation.">i</button>
+            <label for="change_rev">Revenue change ($)</label>
+            <button class="info-btn" aria-label="More info about Revenue change" data-tip="Change in monthly revenue vs the 3-month trailing average. Revenue decay tracks usage decline and typically begins 4–6 weeks before cancellation.">i</button>
           </div>
           <input type="number" id="change_rev" value="-8.5" step="0.1" />
         </div>
         <div class="opera-field">
           <div class="opera-label-row">
-            <label>Monthly recurring charge ($)</label>
-            <button class="info-btn" data-tip="The customer's average monthly recurring plan charge. High recurring fees without perceived value accelerate exit — especially when paired with declining usage.">i</button>
+            <label for="totmrc_Mean">Monthly recurring charge ($)</label>
+            <button class="info-btn" aria-label="More info about Monthly recurring charge" data-tip="The customer's average monthly recurring plan charge. High recurring fees without perceived value accelerate exit — especially when paired with declining usage.">i</button>
           </div>
           <input type="number" id="totmrc_Mean" value="42.0" step="0.1" />
         </div>
@@ -1779,85 +1971,153 @@
 <footer class="footer">
   <div class="container">
     <div class="footer-inner">
-      <span class="footer-logo">Churn Engine</span>
+      <span class="footer-logo">
+        <img src="./churn.svg" alt="Churn Engine logo" />
+        Churn Engine
+      </span>
       <span class="footer-meta">GCI World 2026 · Matsuo-Iwasawa Lab, University of Tokyo</span>
       <div class="footer-links">
-        <a href="http://localhost:8000/docs" target="_blank">API</a>
-        <a href="http://localhost:8000/model-info" target="_blank">Model info</a>
+        <a href="#predictor">Demo</a>
+        <a href="#performance">Model</a>
       </div>
     </div>
   </div>
 </footer>
 
 <script>
-// ── Nav scroll effect ────────────────────────────────────────────────────────
+// ── Nav scroll effect
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 8);
 }, { passive: true });
 
-// ── Scroll reveal ────────────────────────────────────────────────────────────
+// ── Scroll reveal
 const observer = new IntersectionObserver(
   entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
   { threshold: 0.12 }
 );
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// ── Opera canvas setup ───────────────────────────────────────────────────────
+// ── Canvas setup
 const canvas = document.getElementById('operaCanvas');
 const ctx    = canvas.getContext('2d');
 const dpr    = window.devicePixelRatio || 1;
 let W = 0, H = 0;
-let frameId  = 0;
-let animRaf  = null;
-let predictedBeacon = null; // { prob, x, y, tier }
-
-// Floating circles data
 let circles = [];
-// Asterisks data
-let asterisks = [];
-// Bead path data (22 beads)
-let beads = [];
-
-const BEAD_COUNT = 22;
+let predictedBeacon = null; // { xFrac, yFrac, tier }
 
 function buildSceneData() {
-  // ~120 scattered circles, dense in left 40%
   circles = [];
-  for (let i = 0; i < 120; i++) {
-    const inLeft = Math.random() < 0.65;
-    const xFrac  = inLeft
-      ? 0.02 + Math.random() * 0.38
-      : 0.38 + Math.random() * 0.58;
-    const yFrac  = 0.05 + Math.random() * 0.90;
-    const r      = 3 + Math.random() * 11;
-    const isDark = Math.random() < 0.08;
-    const hasRing = !isDark && Math.random() < 0.25;
-    const alpha  = isDark ? 0.8 : 0.4 + Math.random() * 0.5;
-    const speed  = 0.008 + Math.random() * 0.016;
-    const phase  = Math.random() * Math.PI * 2;
-    const amp    = 1.5 + Math.random() * 3;
-    circles.push({ xFrac, yFrac, r, isDark, hasRing, alpha, speed, phase, amp });
+  const zones = [
+    { xMin: 0.04, xMax: 0.30, count: 45, color: '#C93A3A' },
+    { xMin: 0.37, xMax: 0.63, count: 50, color: '#D4920A' },
+    { xMin: 0.70, xMax: 0.94, count: 35, color: '#1E6B3C' },
+  ];
+  zones.forEach(({ xMin, xMax, count, color }) => {
+    for (let i = 0; i < count; i++) {
+      circles.push({
+        cx: (xMin + Math.random() * (xMax - xMin)) * W,
+        cy: (0.12 + Math.random() * 0.76) * H,
+        r:  4 + Math.random() * 3,
+        color,
+      });
+    }
+  });
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#0d1f14';
+  ctx.fillRect(0, 0, W, H);
+
+  // Dot grid
+  const GRID = 24;
+  ctx.fillStyle = 'rgba(255,255,255,0.05)';
+  for (let gx = GRID; gx < W; gx += GRID) {
+    for (let gy = GRID; gy < H; gy += GRID) {
+      ctx.beginPath();
+      ctx.arc(gx, gy, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
-  // 7 asterisks scattered
-  asterisks = [];
-  for (let i = 0; i < 7; i++) {
-    asterisks.push({
-      xFrac: 0.05 + Math.random() * 0.85,
-      yFrac: 0.05 + Math.random() * 0.85,
-    });
-  }
+  // Zone bands
+  const zoneW = W / 3;
+  [
+    'rgba(201,58,58,0.07)',
+    'rgba(160,104,0,0.07)',
+    'rgba(30,107,60,0.07)',
+  ].forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(i * zoneW, 0, zoneW, H);
+  });
 
-  // 22 beads forming sine wave from 35% to 93% width, centered at 48% height
-  // Amplitude decreases from 55px (left) to 12px (right)
-  beads = [];
-  for (let i = 0; i < BEAD_COUNT; i++) {
-    const t     = i / (BEAD_COUNT - 1);              // 0 → 1
-    const xFrac = 0.35 + t * 0.58;                   // 35% → 93%
-    const amp   = 55 - t * 43;                       // 55px → 12px
-    const phaseOffset = t * Math.PI * 2.2;           // sine wave progress
-    const hasRing = (i % 3 === 0);
-    beads.push({ xFrac, amp, phaseOffset, hasRing });
+  // Zone dividers
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 6]);
+  [1, 2].forEach(i => {
+    ctx.beginPath();
+    ctx.moveTo(i * zoneW, 0);
+    ctx.lineTo(i * zoneW, H);
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // Zone labels
+  ctx.textBaseline = 'top';
+  ctx.font = '500 9px Inter, system-ui, sans-serif';
+  [
+    { label: 'HIGH RISK',   x: 12,            color: 'rgba(201,58,58,0.65)' },
+    { label: 'MEDIUM RISK', x: zoneW + 12,    color: 'rgba(212,146,10,0.65)' },
+    { label: 'LOW RISK',    x: zoneW * 2 + 12, color: 'rgba(30,107,60,0.65)' },
+  ].forEach(({ label, x, color }) => {
+    ctx.fillStyle = color;
+    ctx.fillText(label, x, 14);
+  });
+
+  // Customer dots — opaque, solid
+  circles.forEach(({ cx, cy, r, color }) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  });
+
+  // Predicted beacon
+  if (predictedBeacon) {
+    const bx = predictedBeacon.xFrac * W;
+    const by = predictedBeacon.yFrac * H;
+    const tierColor =
+      predictedBeacon.tier === 'High Risk'   ? '#C93A3A' :
+      predictedBeacon.tier === 'Medium Risk' ? '#D4920A' :
+                                               '#1E6B3C';
+
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    ctx.arc(bx, by, 22, 0, Math.PI * 2);
+    ctx.strokeStyle = tierColor;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.globalAlpha = 0.65;
+    ctx.beginPath();
+    ctx.arc(bx, by, 14, 0, Math.PI * 2);
+    ctx.strokeStyle = tierColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.arc(bx, by, 7, 0, Math.PI * 2);
+    ctx.fillStyle = tierColor;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(bx, by, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
   }
 }
 
@@ -1870,139 +2130,10 @@ function resizeCanvas() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(dpr, dpr);
   buildSceneData();
+  draw();
 }
 
-// Draw a 6-arm asterisk
-function drawAsterisk(cx, cy, armLen) {
-  ctx.save();
-  ctx.strokeStyle = 'rgba(42,82,42,0.5)';
-  ctx.lineWidth   = 1;
-  for (let arm = 0; arm < 6; arm++) {
-    const angle = (arm / 6) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + Math.cos(angle) * armLen, cy + Math.sin(angle) * armLen);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-// ── Draw loop ────────────────────────────────────────────────────────────────
-function draw() {
-  frameId++;
-  ctx.clearRect(0, 0, W, H);
-
-  // 1. Green background
-  ctx.fillStyle = '#6a9e61';
-  ctx.fillRect(0, 0, W, H);
-
-  // 2. Fine dot grid (drawn on canvas)
-  const GRID = 20;
-  for (let gx = 0; gx < W; gx += GRID) {
-    for (let gy = 0; gy < H; gy += GRID) {
-      ctx.beginPath();
-      ctx.arc(gx, gy, 0.8, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.10)';
-      ctx.fill();
-    }
-  }
-
-  // 3. Blue atmospheric glow on left-center
-  const glowX = W * 0.25;
-  const glowY = H * 0.50;
-  const glowR = 200;
-  const grd   = ctx.createRadialGradient(glowX, glowY, 0, glowX, glowY, glowR);
-  grd.addColorStop(0, 'rgba(70,110,200,0.18)');
-  grd.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = grd;
-  ctx.beginPath();
-  ctx.arc(glowX, glowY, glowR, 0, Math.PI * 2);
-  ctx.fill();
-
-  // 4. Scattered circles with gentle float
-  circles.forEach(c => {
-    const cx = c.xFrac * W;
-    const cy = c.yFrac * H + Math.sin(frameId * c.speed + c.phase) * c.amp;
-
-    if (c.isDark) {
-      ctx.beginPath();
-      ctx.arc(cx, cy, c.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(42,82,42,${c.alpha})`;
-      ctx.fill();
-    } else {
-      ctx.beginPath();
-      ctx.arc(cx, cy, c.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${c.alpha})`;
-      ctx.fill();
-      if (c.hasRing) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, c.r * 0.45, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(42,82,42,0.55)';
-        ctx.lineWidth   = 1;
-        ctx.stroke();
-      }
-    }
-  });
-
-  // 5. Asterisk accents
-  asterisks.forEach(a => {
-    drawAsterisk(a.xFrac * W, a.yFrac * H, 7);
-  });
-
-  // 6. Sinuous bead path
-  const centerY = H * 0.48;
-  beads.forEach((b, i) => {
-    const bx  = b.xFrac * W;
-    const by  = centerY + Math.sin(b.phaseOffset + frameId * 0.022) * b.amp;
-    const br  = 8 + (i % 5 === 0 ? 1 : 0);
-
-    ctx.beginPath();
-    ctx.arc(bx, by, br, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.88)';
-    ctx.fill();
-
-    if (b.hasRing) {
-      ctx.beginPath();
-      ctx.arc(bx, by, br * 0.45, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(42,82,42,0.6)';
-      ctx.lineWidth   = 1;
-      ctx.stroke();
-    }
-  });
-
-  // 7. Predicted beacon dot
-  if (predictedBeacon) {
-    const { bx, by, tier } = predictedBeacon;
-    const pulse = 14 + Math.sin(frameId * 0.07) * 4;
-
-    const tierColor =
-      tier === 'High Risk'   ? '201,58,58'  :
-      tier === 'Medium Risk' ? '212,146,10' :
-                               '61,158,95';
-
-    const glowBrd = ctx.createRadialGradient(bx, by, 0, bx, by, pulse * 3);
-    glowBrd.addColorStop(0, `rgba(${tierColor},0.45)`);
-    glowBrd.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = glowBrd;
-    ctx.beginPath();
-    ctx.arc(bx, by, pulse * 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(bx, by, pulse * 0.7, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${tierColor},0.85)`;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(bx, by, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-  }
-
-  animRaf = requestAnimationFrame(draw);
-}
-
-// ── API ──────────────────────────────────────────────────────────────────────
+// ── API
 const API = 'http://localhost:8000';
 
 async function checkApi() {
@@ -2011,39 +2142,33 @@ async function checkApi() {
   try {
     const r = await fetch(`${API}/`, { signal: AbortSignal.timeout(3000) });
     if (r.ok) {
-      dot.className  = 'opera-api-dot';
+      dot.className   = 'opera-api-dot';
       txt.textContent = 'API live · localhost:8000';
       return;
     }
   } catch {}
-  dot.className  = 'opera-api-dot offline';
+  dot.className   = 'opera-api-dot offline';
   txt.textContent = 'API offline — run uvicorn first';
 }
 
-// Client-side mock — mirrors the LightGBM feature importances from EDA
 function mockPredict(p) {
   let score = 0.48;
-  // change_mou — #1 predictor
   if      (p.change_mou < -200) score += 0.22;
   else if (p.change_mou < -80)  score += 0.12;
   else if (p.change_mou < -20)  score += 0.05;
   else if (p.change_mou >  30)  score -= 0.14;
   else if (p.change_mou >  10)  score -= 0.07;
-  // eqpdays — device age
   if      (p.eqpdays > 600) score += 0.14;
   else if (p.eqpdays > 400) score += 0.08;
   else if (p.eqpdays > 200) score += 0.03;
   else if (p.eqpdays <  90) score -= 0.10;
-  // months — tenure
   if      (p.months <  6)  score += 0.10;
   else if (p.months < 12)  score += 0.05;
   else if (p.months > 36)  score -= 0.12;
   else if (p.months > 24)  score -= 0.06;
-  // change_rev
   if      (p.change_rev < -15) score += 0.08;
   else if (p.change_rev <  -5) score += 0.04;
   else if (p.change_rev >   5) score -= 0.05;
-  // small noise so identical inputs don't always return identical scores
   score += (Math.random() - 0.5) * 0.04;
   const prob = Math.max(0.04, Math.min(0.96, score));
   const tier = prob > 0.60 ? 'High Risk' : prob > 0.40 ? 'Medium Risk' : 'Low Risk';
@@ -2079,12 +2204,11 @@ async function runPrediction() {
     if (!res.ok) throw new Error(await res.text());
     showResult(await res.json());
   } catch {
-    // Real API unavailable — use client-side mock so the demo still works
     await new Promise(r => setTimeout(r, 380));
     showResult(mockPredict(payload));
     const dot = document.getElementById('apiDot');
     const txt = document.getElementById('apiText');
-    dot.className  = 'opera-api-dot offline';
+    dot.className   = 'opera-api-dot offline';
     txt.textContent = 'Demo mode — API offline';
   } finally {
     btn.disabled    = false;
@@ -2101,7 +2225,6 @@ function showResult(data) {
     'Low Risk':    '#3D9E5F',
   };
 
-  // Update result badge
   const tierEl   = document.getElementById('operaTier');
   const probEl   = document.getElementById('operaProb');
   const actionEl = document.getElementById('operaAction');
@@ -2113,31 +2236,25 @@ function showResult(data) {
   actionEl.textContent = recommended_action;
   resultEl.classList.add('show');
 
-  // Animate slider — left = High Risk, right = Low Risk
-  const sliderPos = (1 - p) * 100;
-  const fill  = document.getElementById('sliderFill');
-  const thumb = document.getElementById('sliderThumb');
-
   const sliderColors = { 'High Risk': '#C93A3A', 'Medium Risk': '#D4920A', 'Low Risk': '#2a5230' };
   const tierColor    = sliderColors[risk_tier] || '#2a5230';
+  const fill  = document.getElementById('sliderFill');
+  const thumb = document.getElementById('sliderThumb');
   fill.style.background  = tierColor;
   thumb.style.background = tierColor;
   fill.style.width       = `${(p * 100).toFixed(1)}%`;
-  thumb.style.left       = `${sliderPos.toFixed(1)}%`;
+  thumb.style.left       = `${((1 - p) * 100).toFixed(1)}%`;
 
-  // Place glowing beacon on canvas
-  // X position: High Risk left=10%, Low Risk right=90% — map probability
-  // High prob (1.0) → x near left (10%), Low prob (0.0) → x near right (90%)
-  const beaconXFrac = 0.10 + (1 - p) * 0.80;
-  const beaconYFrac = 0.25 + Math.random() * 0.50;
+  // Place beacon and redraw once
   predictedBeacon = {
-    bx:   beaconXFrac * W,
-    by:   beaconYFrac * H,
-    tier: risk_tier,
+    xFrac: 0.10 + (1 - p) * 0.80,
+    yFrac: 0.25 + Math.random() * 0.50,
+    tier:  risk_tier,
   };
+  draw();
 }
 
-// ── Presets ──────────────────────────────────────────────────────────────────
+// ── Presets
 const PRESETS = {
   high: { months: 6,  eqpdays: 720, rev_Mean: 62, change_mou: -240, change_rev: -18, totmrc_Mean: 58 },
   low:  { months: 42, eqpdays: 80,  rev_Mean: 44, change_mou:  +55, change_rev:  +4, totmrc_Mean: 32 },
@@ -2152,20 +2269,11 @@ function loadPreset(key) {
   runPrediction();
 }
 
-// Enter key fires prediction from any field inside the form
 document.querySelectorAll('.opera-field input').forEach(inp => {
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') runPrediction(); });
 });
 
-// ── Init ─────────────────────────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  resizeCanvas();
-  draw();
-  checkApi();
-  setInterval(checkApi, 15000);
-});
-
-// ── Info button tooltips ─────────────────────────────────────────────────────
+// ── Info button tooltips
 const tooltip = document.createElement('div');
 tooltip.className = 'field-tooltip';
 document.body.appendChild(tooltip);
@@ -2175,7 +2283,6 @@ document.querySelectorAll('.info-btn').forEach(btn => {
     const rect = btn.getBoundingClientRect();
     tooltip.textContent = btn.dataset.tip;
     tooltip.style.display = 'block';
-    // Measure after display
     requestAnimationFrame(() => {
       const tw = tooltip.offsetWidth;
       tooltip.style.top  = `${rect.top + rect.height / 2 - tooltip.offsetHeight / 2}px`;
@@ -2186,6 +2293,13 @@ document.querySelectorAll('.info-btn').forEach(btn => {
   btn.addEventListener('mouseleave', () => {
     tooltip.classList.remove('visible');
   });
+});
+
+// ── Init
+window.addEventListener('load', () => {
+  resizeCanvas();
+  checkApi();
+  setInterval(checkApi, 15000);
 });
 
 window.addEventListener('resize', () => {
