@@ -7,7 +7,7 @@
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![AUC-ROC](https://img.shields.io/badge/AUC--ROC-0.692-4CAF50)](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-11%20passed-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/Tests-54%20passed-brightgreen)](#running-tests)
 
 ---
 
@@ -17,6 +17,7 @@ Telecom operators lose significant recurring revenue to churn without knowing *w
 
 **What it does:**
 
+- **Bring your own data:** upload any labelled customer CSV, train a churn model on it in seconds, and score your current customers — no code, no fixed schema ([details](#use-it-on-your-own-data))
 - Trains a LightGBM classifier on 100,000 customers with ~50% observed churn rate
 - Engineers 10+ behavioural features from raw call records and billing data
 - Classifies customers into High / Medium / Low risk tiers with prescriptive retention actions
@@ -93,6 +94,49 @@ Raw Data (Client.csv + Record.csv)
 
 ---
 
+## Use it on your own data
+
+The engine isn't tied to the telecom dataset. Any business with a history of customers and who left can train its own model:
+
+1. **Upload** a CSV — one row per customer, plus a column saying whether they churned (`Yes/No`, `1/0`, `True/False`, `Churned/Stayed`, …).
+2. **Check** how each column was read. The engine detects numeric and categorical columns, the customer ID, and the churn label, and sets aside columns it can't use (constant, mostly empty, free text) with a reason for each.
+3. **Train.** It splits the data three ways — train / validation / test — and trains both LightGBM and a logistic regression (each with the encoding that suits it). Whichever scores better **on validation** is served; the test set is used once, for the numbers you see.
+4. **Read the report:** AUC on customers the model never saw, how many test customers land in each risk tier and how many of them *actually* churned, the columns driving predictions, and warnings — e.g. a column that leaks the answer (a cancellation date) or a model barely better than guessing.
+5. **Score** current customers — upload a CSV, download it with `churn_probability`, `risk_tier` and `recommended_action` appended.
+
+**In the browser:** open `ui/engine.html` (with the API running) and click *Use the sample dataset* to try it with 3,000 synthetic subscription customers.
+
+**Over the API:**
+
+```bash
+# 1. Upload → returns dataset id, inferred schema, suggested target/ID columns
+curl -F file=@ui/examples/sample_customers.csv localhost:8000/datasets
+
+# 2. Train (returns immediately; status goes queued → training → ready | failed)
+curl -H 'Content-Type: application/json' \
+  -d '{"dataset_id": "<id>", "target": "churned"}' localhost:8000/models
+
+# 3. Report: metrics, tiers vs actual churn, top drivers, input schema
+curl localhost:8000/models/<model_id>
+
+# 4. Score — JSON (≤1,000 rows) or CSV in, CSV out
+curl -F file=@ui/examples/customers_to_score.csv \
+  localhost:8000/models/<model_id>/predict/csv -o scored.csv
+```
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /datasets` | Upload a training CSV (≤ 50 MB) |
+| `POST /models` | Train; optional `id_column`, `positive_label`, `exclude_columns`, `tier_thresholds` |
+| `GET /models`, `GET /models/{id}` | List models / full training report |
+| `POST /models/{id}/predict` | Score up to 1,000 customers as JSON |
+| `POST /models/{id}/predict/csv` | Upload a CSV, download it scored |
+| `DELETE /datasets/{id}`, `DELETE /models/{id}` | Remove data or a model |
+
+Requirements: at least 200 labelled rows, with at least 50 churned and 50 retained. Uploaded training data is deleted once a model trains successfully (pass `keep_dataset: true` to keep it); it's kept after a failure so you can retry. Storage lives in `storage/` (override with `CHURN_STORAGE_DIR`). There is no authentication yet — don't expose this publicly with real customer data, and don't upload names, emails or phone numbers.
+
+---
+
 ## Project Structure
 
 ```
@@ -100,20 +144,28 @@ telecom-churn-engine/
 ├── data/
 │   ├── README.md           ← dataset instructions
 │   └── sample_input.json   ← API test payload
-├── notebooks/
-│   ├── 01_eda.ipynb        ← exploratory data analysis
-│   └── 02_modelling.ipynb  ← training pipeline and evaluation
 ├── src/
-│   ├── preprocess.py       ← data loading and feature engineering
-│   ├── train.py            ← model training with artefact persistence
+│   ├── preprocess.py       ← telecom data loading and feature engineering
+│   ├── train.py            ← telecom model training with artefact persistence
 │   ├── predict.py          ← ChurnPredictor class with risk tier logic
-│   └── evaluate.py         ← metrics and visualisation utilities
+│   ├── evaluate.py         ← metrics and visualisation utilities
+│   ├── schema.py           ← infers column roles in any uploaded CSV
+│   ├── engine.py           ← bring-your-own-data training + scoring pipeline
+│   ├── registry.py         ← file-based storage for datasets and models
+│   └── sample_data.py      ← synthetic example data generator
 ├── api/
-│   └── main.py             ← FastAPI application
+│   ├── main.py             ← FastAPI application (telecom demo endpoints)
+│   └── engine.py           ← bring-your-own-data endpoints
+├── ui/
+│   ├── index.html          ← project showcase page
+│   ├── engine.html         ← upload → train → score web app
+│   └── examples/           ← sample CSVs for trying the engine
 ├── models/                 ← serialised artefacts (excluded from git)
 ├── tests/
-│   ├── test_api.py         ← endpoint integration tests
-│   └── test_preprocess.py  ← feature engineering unit tests
+│   ├── test_api.py         ← telecom endpoint tests (model mocked)
+│   ├── test_preprocess.py  ← feature engineering unit tests
+│   ├── test_engine.py      ← schema inference + training engine (real models)
+│   └── test_engine_api.py  ← end-to-end upload → train → score API tests
 ├── Dockerfile
 └── requirements.txt
 ```
@@ -245,18 +297,11 @@ pytest tests/ -v
 ```
 
 ```
-tests/test_api.py::test_health_check                PASSED
-tests/test_api.py::test_predict_returns_200         PASSED
-tests/test_api.py::test_predict_response_schema     PASSED
-tests/test_api.py::test_predict_probability_range   PASSED
-tests/test_api.py::test_predict_binary_prediction   PASSED
-tests/test_api.py::test_predict_valid_risk_tier     PASSED
-tests/test_api.py::test_batch_predict               PASSED
-tests/test_api.py::test_predict_with_minimal_fields PASSED
-tests/test_preprocess.py::test_engineer_features_adds_columns PASSED
-tests/test_preprocess.py::test_call_completion_rate_range     PASSED
-tests/test_preprocess.py::test_overage_flag_binary            PASSED
-11 passed in 0.84s
+tests/test_api.py           9 passed   (telecom endpoints, model mocked)
+tests/test_engine.py       24 passed   (schema inference + engine, real models)
+tests/test_engine_api.py   14 passed   (upload → train → score, end to end)
+tests/test_preprocess.py    7 passed
+54 passed
 ```
 
 ---
@@ -267,8 +312,11 @@ tests/test_preprocess.py::test_overage_flag_binary            PASSED
 # Build
 docker build -t churn-engine .
 
-# Run (mount the trained models directory)
-docker run -p 8000:8000 -v $(pwd)/models:/app/models churn-engine
+# Run (mount the telecom models, and a folder to keep uploaded datasets / trained models)
+docker run -p 8000:8000 \
+  -v $(pwd)/models:/app/models \
+  -v $(pwd)/storage:/app/storage \
+  churn-engine
 ```
 
 ---

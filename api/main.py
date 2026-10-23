@@ -9,6 +9,9 @@ Endpoints:
     POST /predict      → score a single customer
     POST /predict/batch → score a list of customers (max 1000)
 
+    Bring your own data (api/engine.py):
+    POST /datasets → POST /models → GET /models/{id} → POST /models/{id}/predict[/csv]
+
 Run locally:
     uvicorn api.main:app --reload --port 8000
 
@@ -18,6 +21,7 @@ Then visit:
 
 import json
 import logging
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
@@ -25,41 +29,20 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from api.engine import get_registry, router as engine_router
 from src.predict import ChurnPredictor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ── App setup ──────────────────────────────────────────────────────────────────
-
-app = FastAPI(
-    title="Telecom Churn Prediction Engine",
-    description=(
-        "ML-powered REST API that scores telecom customers by churn risk "
-        "and returns a recommended retention action.\n\n"
-        "**Model:** LightGBM | **AUC-ROC:** 0.692 | **F1:** 0.639\n\n"
-        "Built by Saumya — GCI World 2026 / personal portfolio project."
-    ),
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# ── Load model once at startup ─────────────────────────────────────────────────
+# ── Load the demo model once at startup ────────────────────────────────────────
 
 MODEL_DIR = Path("models/")
 predictor: Optional[ChurnPredictor] = None
 
 
-@app.on_event("startup")
-def load_model() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global predictor
     try:
         predictor = ChurnPredictor(MODEL_DIR)
@@ -69,7 +52,39 @@ def load_model() -> None:
             "Model files not found in models/. "
             "Run `python -m src.train` first."
         )
+    interrupted = get_registry().recover_interrupted()
+    if interrupted:
+        logger.warning(f"Marked {interrupted} interrupted training job(s) as failed")
+    yield
 
+
+# ── App setup ──────────────────────────────────────────────────────────────────
+
+app = FastAPI(
+    title="Telecom Churn Prediction Engine",
+    description=(
+        "ML-powered REST API that scores customers by churn risk "
+        "and returns a recommended retention action.\n\n"
+        "**Bring your own data:** upload any labelled customer CSV to `/datasets`, "
+        "train a model on it with `/models`, then score current customers.\n\n"
+        "**Built-in telecom demo model** (`/predict`): LightGBM | AUC-ROC 0.69\n\n"
+        "Built by Saumya — GCI World 2026 / personal portfolio project."
+    ),
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
+)
+
+app.include_router(engine_router)
 
 # ── Schemas ────────────────────────────────────────────────────────────────────
 
@@ -143,6 +158,7 @@ def root():
         "service": "Telecom Churn Prediction Engine",
         "version": "1.0.0",
         "docs":    "/docs",
+        "bring_your_own_data": "POST /datasets → POST /models → POST /models/{id}/predict",
     }
 
 

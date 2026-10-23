@@ -11,6 +11,10 @@ COPY src/       ./src/
 COPY api/       ./api/
 COPY models/    ./models/
 
+# Uploaded datasets and bring-your-own-data models (mount a volume to keep them)
+ENV CHURN_STORAGE_DIR=/app/storage
+RUN mkdir -p /app/storage
+
 # Expose port
 EXPOSE 8000
 

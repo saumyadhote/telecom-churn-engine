@@ -32,6 +32,9 @@ models/*.pkl
 models/*.joblib
 !models/.gitkeep
 
+# Bring-your-own-data uploads and trained models
+storage/
+
 # Reports
 reports/figures/*.png
 !reports/figures/.gitkeep

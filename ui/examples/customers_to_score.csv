@@ -1,0 +1,501 @@
+customer_id,tenure_months,contract,plan,monthly_charges,total_charges,payment_method,region,support_tickets_90d,days_since_last_login
+C100000,50,Month-to-month,Standard,45.68,2284.0,Invoice,North,0,14
+C100001,52,One year,Basic,21.14,1099.28,Invoice,North,0,6
+C100002,64,Month-to-month,Basic,23.13,1480.32,Bank transfer,North,0,6
+C100003,70,Two year,Basic,28.439999999999998,1990.8,Invoice,West,1,1
+C100004,24,One year,Basic,33.03,792.72,Card,South,0,1
+C100005,49,One year,Standard,43.62,2137.38,Invoice,South,1,10
+C100006,52,Month-to-month,Standard,49.31,2564.12,Card,West,1,5
+C100007,56,One year,Basic,22.57,1263.92,PayPal,West,2,21
+C100008,44,Month-to-month,Standard,51.06,2246.64,Invoice,East,0,6
+C100009,20,One year,Basic,13.77,275.4,Invoice,East,1,6
+C100010,38,Two year,Standard,49.63,1885.94,Invoice,East,3,2
+C100011,13,Month-to-month,Standard,46.09,599.17,Card,East,1,1
+C100012,1,Month-to-month,Basic,12.15,12.15,PayPal,East,1,24
+C100013,50,Month-to-month,Premium,77.16,3858.0,Card,West,0,1
+C100014,67,Month-to-month,Basic,11.46,767.82,Bank transfer,West,1,21
+C100015,71,Month-to-month,Basic,11.26,799.46,Bank transfer,South,0,3
+C100016,62,Two year,Basic,17.68,1096.16,Bank transfer,West,1,12
+C100017,49,Month-to-month,Standard,45.12,2210.88,Card,West,0,0
+C100018,34,One year,Standard,50.47,1715.98,Bank transfer,North,1,4
+C100019,17,Month-to-month,Standard,46.53,791.01,Card,South,1,11
+C100020,17,Month-to-month,Basic,22.9,389.3,PayPal,South,1,8
+C100021,19,One year,Standard,46.72,887.68,Card,West,3,10
+C100022,6,Month-to-month,Standard,48.32,289.92,Bank transfer,South,0,16
+C100023,29,Two year,Standard,45.3,1313.7,Card,West,2,7
+C100024,61,Month-to-month,Basic,18.72,1141.92,Invoice,West,0,12
+C100025,43,One year,Standard,37.980000000000004,1633.14,Invoice,East,0,21
+C100026,57,One year,Basic,18.44,1051.08,PayPal,North,3,14
+C100027,2,One year,Basic,9.46,18.92,PayPal,North,2,8
+C100028,71,One year,Standard,35.84,2544.64,PayPal,South,1,5
+C100029,41,Month-to-month,Premium,84.05,3446.05,PayPal,West,2,3
+C100030,5,Month-to-month,Basic,25.15,125.75,PayPal,North,1,5
+C100031,31,Month-to-month,Basic,12.76,395.56,Invoice,East,1,2
+C100032,34,Month-to-month,Basic,13.77,468.18,PayPal,East,1,11
+C100033,11,Month-to-month,Premium,79.3,872.3,Invoice,South,0,8
+C100034,61,Month-to-month,Standard,53.92,3289.12,PayPal,South,2,11
+C100035,66,Month-to-month,Premium,83.35,5501.1,Invoice,South,2,13
+C100036,54,One year,Standard,47.72,2576.88,Card,West,1,25
+C100037,20,Month-to-month,Standard,46.55,931.0,Invoice,West,0,5
+C100038,68,One year,Standard,44.35,3015.8,Card,North,1,8
+C100039,51,Two year,Standard,40.92,2086.92,Invoice,North,1,9
+C100040,32,Month-to-month,Premium,78.21,2502.72,Bank transfer,North,0,1
+C100041,33,Month-to-month,Standard,51.82,1710.06,Bank transfer,West,2,24
+C100042,8,One year,Premium,78.92,631.36,Invoice,North,1,2
+C100043,37,One year,Standard,56.72,2098.64,Card,West,0,7
+C100044,43,One year,Basic,30.16,1296.88,PayPal,North,2,11
+C100045,69,One year,Premium,77.67,5359.23,Bank transfer,East,0,10
+C100046,67,Month-to-month,Basic,14.77,989.59,Invoice,East,2,21
+C100047,19,Two year,Basic,10.29,195.51,Card,North,0,6
+C100048,25,One year,Standard,51.44,1286.0,Card,South,1,11
+C100049,56,One year,Standard,40.84,2287.04,Bank transfer,North,2,24
+C100050,58,One year,Basic,18.14,1052.12,Invoice,East,2,15
+C100051,8,One year,Premium,87.74,701.92,Invoice,South,1,6
+C100052,55,One year,Basic,15.379999999999999,845.9,Invoice,North,1,17
+C100053,34,Month-to-month,Basic,23.59,802.06,Bank transfer,South,0,17
+C100054,32,Month-to-month,Premium,80.54,2577.28,PayPal,North,0,17
+C100055,32,Month-to-month,Basic,14.07,450.24,PayPal,West,1,45
+C100056,56,Two year,Basic,12.02,673.12,PayPal,East,1,2
+C100057,4,Month-to-month,Basic,27.55,110.2,PayPal,West,0,4
+C100058,50,One year,Premium,72.99,3649.5,Invoice,North,0,2
+C100059,46,One year,Standard,49.519999999999996,2277.92,Bank transfer,East,0,11
+C100060,23,One year,Premium,80.48,1851.04,Invoice,South,1,12
+C100061,38,Month-to-month,Standard,42.93,1631.34,PayPal,East,0,3
+C100062,36,Month-to-month,Standard,50.22,1807.92,Card,West,2,6
+C100063,30,Month-to-month,Standard,37.57,1127.1,Invoice,West,3,26
+C100064,13,One year,Basic,26.66,346.58,PayPal,South,2,23
+C100065,34,Month-to-month,Basic,21.51,731.34,PayPal,South,0,7
+C100066,20,Month-to-month,Premium,70.77,1415.4,Card,North,2,0
+C100067,46,Month-to-month,Standard,41.08,1889.68,PayPal,West,0,2
+C100068,9,One year,Basic,28.18,253.62,Invoice,North,1,12
+C100069,59,Month-to-month,Basic,27.53,1624.27,Invoice,South,0,4
+C100070,67,Month-to-month,Standard,45.78,3067.26,PayPal,North,0,20
+C100071,19,Month-to-month,Basic,17.490000000000002,332.31,Invoice,North,0,14
+C100072,46,Two year,Standard,58.72,2701.12,Card,North,1,0
+C100073,13,Two year,Standard,46.03,598.39,Card,East,2,13
+C100074,41,One year,Premium,94.27,3865.07,Card,West,1,1
+C100075,47,One year,Premium,84.45,3969.15,Invoice,East,4,3
+C100076,49,Month-to-month,Premium,76.11,3729.39,Invoice,West,1,38
+C100077,50,One year,Standard,49.36,2468.0,Bank transfer,West,3,2
+C100078,54,Two year,Standard,43.82,2366.28,Bank transfer,West,2,7
+C100079,12,Month-to-month,Basic,13.6,163.2,Card,East,1,2
+C100080,62,Month-to-month,Standard,52.26,3240.12,Card,East,0,13
+C100081,39,Month-to-month,Premium,83.9,3272.1,Bank transfer,East,0,5
+C100082,8,Month-to-month,Basic,18.06,144.48,PayPal,North,1,16
+C100083,68,Two year,Standard,47.25,3213.0,PayPal,North,1,2
+C100084,54,Month-to-month,Standard,38.74,2091.96,Card,North,1,0
+C100085,70,Two year,Premium,77.79,5445.3,Invoice,North,1,5
+C100086,36,Month-to-month,Premium,87.29,3142.44,Bank transfer,West,0,3
+C100087,48,Two year,Standard,48.12,2309.76,Card,North,0,5
+C100088,14,Month-to-month,Basic,19.54,273.56,Card,North,1,7
+C100089,61,One year,Standard,43.6,2659.6,Invoice,East,2,15
+C100090,36,Two year,Standard,35.36,1272.96,Card,North,0,4
+C100091,35,Month-to-month,Standard,42.67,1493.45,Invoice,East,1,1
+C100092,11,Month-to-month,Premium,85.42,939.62,Invoice,South,2,13
+C100093,31,Month-to-month,Basic,15.629999999999999,484.53,Card,East,2,6
+C100094,33,Month-to-month,Standard,49.57,1635.81,Bank transfer,East,1,14
+C100095,38,Two year,Standard,53.76,2042.88,Card,West,4,14
+C100096,66,Two year,Basic,13.36,881.76,Bank transfer,South,1,3
+C100097,5,One year,Standard,43.76,218.8,Bank transfer,North,2,0
+C100098,38,Month-to-month,Premium,80.64,3064.32,Invoice,West,0,4
+C100099,49,Month-to-month,Standard,49.25,2413.25,Invoice,North,2,5
+C100100,30,Month-to-month,Standard,49.56,1486.8,Card,East,2,5
+C100101,53,One year,Standard,45.89,2432.17,PayPal,East,1,20
+C100102,39,Month-to-month,Basic,8.99,350.61,PayPal,East,1,19
+C100103,23,Month-to-month,Premium,71.25,1638.75,Card,West,0,7
+C100104,41,Month-to-month,Premium,91.55,3753.55,Bank transfer,East,1,32
+C100105,35,Month-to-month,Premium,78.79,2757.65,PayPal,South,4,1
+C100106,16,Month-to-month,Premium,84.06,1344.96,PayPal,North,3,7
+C100107,19,Month-to-month,Basic,31.369999999999997,596.03,Card,West,0,7
+C100108,12,One year,Standard,41.31,495.72,Bank transfer,West,0,2
+C100109,16,Month-to-month,Standard,47.0,752.0,Bank transfer,West,1,2
+C100110,11,One year,Standard,39.82,438.02,Bank transfer,South,2,1
+C100111,57,Month-to-month,Premium,77.94,4442.58,Card,South,1,15
+C100112,32,One year,Standard,42.67,1365.44,Invoice,South,1,18
+C100113,12,Two year,Basic,22.0,264.0,Bank transfer,North,1,4
+C100114,41,Month-to-month,Premium,80.81,3313.21,Card,South,0,11
+C100115,67,Two year,Basic,18.73,1254.91,Card,South,2,21
+C100116,8,One year,Standard,38.82,310.56,Bank transfer,East,1,23
+C100117,46,One year,Standard,49.5,2277.0,Invoice,North,1,17
+C100118,43,Month-to-month,Basic,18.8,808.4,Bank transfer,South,2,2
+C100119,17,One year,Premium,74.1,1259.7,PayPal,South,4,1
+C100120,70,Month-to-month,Basic,15.95,1116.5,PayPal,West,3,2
+C100121,71,One year,Standard,53.01,3763.71,Invoice,West,1,3
+C100122,24,Month-to-month,Basic,23.28,558.72,Card,East,0,2
+C100123,57,One year,Basic,25.81,1471.17,Invoice,East,0,6
+C100124,8,Month-to-month,Basic,30.310000000000002,242.48,Bank transfer,West,2,10
+C100125,10,Month-to-month,Premium,89.82,898.2,Card,North,3,0
+C100126,52,Month-to-month,Premium,81.94,4260.88,Card,North,1,3
+C100127,23,One year,Standard,44.32,1019.36,PayPal,South,1,27
+C100128,58,Two year,Premium,88.01,5104.58,Invoice,East,1,5
+C100129,47,Month-to-month,Standard,38.66,1817.02,PayPal,North,0,16
+C100130,53,Month-to-month,Standard,44.08,2336.24,Invoice,East,3,1
+C100131,44,Month-to-month,Basic,14.2,624.8,Bank transfer,East,0,1
+C100132,63,Month-to-month,Premium,79.09,4982.67,Bank transfer,East,2,1
+C100133,24,Two year,Basic,15.469999999999999,371.28,PayPal,South,2,5
+C100134,27,One year,Basic,12.719999999999999,343.44,PayPal,East,1,14
+C100135,55,Two year,Standard,52.88,2908.4,Card,East,1,5
+C100136,27,Two year,Basic,10.31,278.37,Bank transfer,East,3,5
+C100137,6,Month-to-month,Standard,38.51,231.06,Card,North,0,6
+C100138,17,Two year,Basic,18.95,322.15,Bank transfer,South,2,15
+C100139,50,Month-to-month,Basic,25.07,1253.5,PayPal,South,3,5
+C100140,65,Month-to-month,Standard,45.77,2975.05,PayPal,South,1,1
+C100141,6,Two year,Standard,46.52,279.12,Card,North,0,24
+C100142,7,Two year,Standard,52.980000000000004,370.86,PayPal,South,1,5
+C100143,53,Two year,Standard,42.56,2255.68,Card,South,1,3
+C100144,37,Two year,Standard,44.92,1662.04,PayPal,East,1,1
+C100145,65,Two year,Premium,71.0,4615.0,Card,South,3,10
+C100146,66,Month-to-month,Basic,7.35,485.1,Bank transfer,East,0,10
+C100147,37,Month-to-month,Standard,49.72,1839.64,PayPal,North,0,1
+C100148,11,Month-to-month,Basic,16.75,184.25,Invoice,North,0,2
+C100149,18,One year,Standard,46.96,845.28,Card,West,0,7
+C100150,47,Month-to-month,Basic,19.91,935.77,Invoice,East,1,3
+C100151,16,One year,Premium,70.87,1133.92,Bank transfer,West,3,4
+C100152,1,Two year,Basic,25.509999999999998,25.51,Bank transfer,South,1,1
+C100153,25,Month-to-month,Basic,9.63,240.75,Card,South,4,4
+C100154,41,Two year,Standard,37.43,1534.63,Bank transfer,South,1,16
+C100155,17,One year,Standard,46.68,793.56,Card,West,1,28
+C100156,30,Two year,Premium,89.96000000000001,2698.8,Card,West,1,4
+C100157,62,Month-to-month,Premium,83.58,5181.96,PayPal,West,5,2
+C100158,18,Two year,Standard,42.26,760.68,Invoice,North,1,19
+C100159,6,Month-to-month,Standard,43.45,260.7,Invoice,East,2,37
+C100160,57,Two year,Premium,76.3,4349.1,Invoice,South,0,10
+C100161,16,Month-to-month,Standard,43.45,695.2,Invoice,North,0,15
+C100162,21,Month-to-month,Basic,24.3,510.3,Invoice,North,1,1
+C100163,57,One year,Premium,74.94,4271.58,Bank transfer,West,1,16
+C100164,66,Month-to-month,Basic,30.8,2032.8,Card,North,1,3
+C100165,69,Two year,Standard,48.0,3312.0,PayPal,East,1,28
+C100166,58,One year,Premium,72.87,4226.46,PayPal,North,1,12
+C100167,31,Month-to-month,Basic,14.59,452.29,Card,South,0,1
+C100168,15,One year,Premium,85.22,1278.3,Card,North,3,4
+C100169,13,Two year,Standard,45.83,595.79,Card,North,1,5
+C100170,69,Month-to-month,Standard,34.5,2380.5,PayPal,South,2,12
+C100171,29,One year,Standard,39.480000000000004,1144.92,Invoice,West,2,3
+C100172,25,Month-to-month,Standard,39.59,989.75,Invoice,West,1,19
+C100173,53,Month-to-month,Premium,71.83,3806.99,Card,East,1,12
+C100174,65,Month-to-month,Premium,83.34,5417.1,PayPal,North,1,4
+C100175,59,Two year,Premium,85.81,5062.79,Card,West,1,1
+C100176,12,Month-to-month,Standard,44.24,530.88,PayPal,West,1,9
+C100177,36,Month-to-month,Basic,20.01,720.36,Invoice,South,3,18
+C100178,19,Month-to-month,Standard,50.37,957.03,Card,North,0,19
+C100179,51,Month-to-month,Standard,43.92,2239.92,Bank transfer,South,1,10
+C100180,45,Month-to-month,Basic,23.53,1058.85,Card,East,2,6
+C100181,56,One year,Standard,41.87,2344.72,Invoice,East,3,4
+C100182,21,One year,Basic,19.98,419.58,PayPal,North,4,2
+C100183,69,One year,Standard,57.28,3952.32,Bank transfer,South,1,14
+C100184,6,One year,Premium,86.85,521.1,PayPal,East,0,8
+C100185,10,Month-to-month,Standard,54.08,540.8,Bank transfer,North,0,10
+C100186,50,Two year,Standard,44.54,2227.0,Bank transfer,East,2,12
+C100187,52,Month-to-month,Standard,48.53,2523.56,Invoice,West,0,2
+C100188,22,Month-to-month,Basic,9.3,204.6,Bank transfer,North,1,3
+C100189,42,Month-to-month,Standard,39.81,1672.02,Bank transfer,East,1,5
+C100190,51,Month-to-month,Standard,43.69,2228.19,Bank transfer,West,1,21
+C100191,26,One year,Premium,74.21,1929.46,Bank transfer,South,2,1
+C100192,36,One year,Standard,37.74,1358.64,Bank transfer,West,2,13
+C100193,61,Two year,Basic,17.94,1094.34,Bank transfer,North,0,5
+C100194,30,Month-to-month,Premium,85.9,2577.0,Bank transfer,West,1,16
+C100195,8,One year,Premium,80.72,645.76,Bank transfer,South,2,1
+C100196,12,Month-to-month,Basic,13.52,162.24,PayPal,North,0,15
+C100197,45,One year,Premium,78.49,3532.05,Invoice,West,0,2
+C100198,1,One year,Basic,11.5,11.5,PayPal,East,1,1
+C100199,15,Two year,Standard,41.22,618.3,Card,West,1,6
+C100200,19,Month-to-month,Basic,11.75,223.25,PayPal,East,1,3
+C100201,5,Month-to-month,Basic,28.560000000000002,142.8,Card,North,0,3
+C100202,27,One year,Basic,10.33,278.91,Invoice,North,1,7
+C100203,9,Month-to-month,Standard,39.63,356.67,Invoice,North,2,10
+C100204,58,Two year,Standard,45.63,2646.54,Bank transfer,North,0,9
+C100205,41,Month-to-month,Premium,74.73,3063.93,Card,West,0,6
+C100206,17,Two year,Basic,32.75,556.75,Card,West,1,7
+C100207,15,Month-to-month,Standard,47.22,708.3,Invoice,West,1,11
+C100208,38,One year,Premium,77.98,2963.24,Bank transfer,East,3,5
+C100209,61,One year,Premium,81.43,4967.23,PayPal,South,0,11
+C100210,9,One year,Basic,20.44,183.96,Invoice,East,2,11
+C100211,36,Month-to-month,Basic,24.88,895.68,Card,South,1,8
+C100212,65,One year,Basic,11.0,715.0,Bank transfer,West,1,3
+C100213,52,Month-to-month,Standard,49.44,2570.88,Bank transfer,South,0,16
+C100214,55,Month-to-month,Basic,17.240000000000002,948.2,PayPal,South,2,7
+C100215,65,One year,Premium,81.16,5275.4,Invoice,North,1,20
+C100216,18,Month-to-month,Standard,46.7,840.6,Card,East,0,13
+C100217,69,Month-to-month,Basic,26.84,1851.96,Invoice,East,2,8
+C100218,16,One year,Premium,79.78,1276.48,Card,North,1,16
+C100219,64,Month-to-month,Premium,86.12,5511.68,Card,North,0,1
+C100220,69,One year,Standard,37.5,2587.5,PayPal,South,1,3
+C100221,20,Month-to-month,Basic,23.46,469.2,Invoice,West,0,1
+C100222,2,Month-to-month,Premium,79.38,158.76,Invoice,North,2,9
+C100223,69,Month-to-month,Standard,40.04,2762.76,Bank transfer,West,0,17
+C100224,63,Month-to-month,Basic,17.04,1073.52,Card,North,3,4
+C100225,1,Month-to-month,Standard,44.44,44.44,Bank transfer,North,2,55
+C100226,17,One year,Premium,73.17,1243.89,PayPal,South,0,4
+C100227,54,Two year,Standard,35.769999999999996,1931.58,Invoice,North,3,1
+C100228,63,One year,Standard,36.05,2271.15,Bank transfer,East,1,15
+C100229,26,Two year,Premium,83.17,2162.42,Card,North,3,31
+C100230,50,Month-to-month,Standard,51.16,2558.0,Invoice,South,4,3
+C100231,24,Month-to-month,Standard,41.43,994.32,Invoice,South,0,10
+C100232,63,Month-to-month,Premium,87.89,5537.07,Invoice,North,0,9
+C100233,13,Month-to-month,Basic,18.57,241.41,PayPal,West,1,4
+C100234,36,Month-to-month,Premium,74.72,2689.92,Bank transfer,East,2,4
+C100235,35,One year,Basic,12.48,436.8,Card,North,1,3
+C100236,16,Month-to-month,Standard,41.61,665.76,Card,South,0,7
+C100237,61,One year,Standard,37.980000000000004,2316.78,Card,East,4,5
+C100238,41,Two year,Standard,49.64,2035.24,PayPal,North,2,7
+C100239,52,Month-to-month,Standard,50.79, ,Invoice,West,4,20
+C100240,30,Month-to-month,Basic,23.7,711.0,Bank transfer,South,1,5
+C100241,62,One year,Standard,46.72,2896.64,Card,South,3,10
+C100242,9,One year,Premium,85.49,769.41,Card,South,1,24
+C100243,66,Month-to-month,Premium,75.12,4957.92,Invoice,North,2,4
+C100244,5,Month-to-month,Basic,1.5599999999999987,7.8,PayPal,North,2,5
+C100245,68,Month-to-month,Standard,50.12,3408.16,Bank transfer,West,0,9
+C100246,12,Month-to-month,Basic,27.27,327.24,Bank transfer,South,1,16
+C100247,39,One year,Standard,43.01,1677.39,Invoice,East,1,35
+C100248,54,Two year,Basic,22.59,1219.86,Invoice,South,0,4
+C100249,26,Month-to-month,Basic,17.35,451.1,PayPal,North,1,13
+C100250,65,Month-to-month,Basic,9.67,628.55,PayPal,North,1,1
+C100251,34,Two year,Premium,85.34,2901.56,Invoice,South,1,3
+C100252,52,Month-to-month,Basic,10.84,563.68,PayPal,West,0,8
+C100253,21,Two year,Standard,55.78,1171.38,Card,East,4,0
+C100254,52,Two year,Basic,20.55,1068.6,Invoice,West,0,1
+C100255,39,One year,Standard,39.36,1535.04,Card,East,2,1
+C100256,34,Month-to-month,Standard,42.56,1447.04,Invoice,North,1,4
+C100257,7,One year,Premium,81.56,570.92,Card,West,0,0
+C100258,38,One year,Basic,24.06,914.28,Bank transfer,North,2,2
+C100259,32,One year,Basic,17.37,555.84,Invoice,North,1,5
+C100260,39,Month-to-month,Standard,45.94,1791.66,Card,North,0,30
+C100261,43,Month-to-month,Standard,43.62,1875.66,Bank transfer,North,0,2
+C100262,33,Two year,Basic,18.56,612.48,Card,East,4,3
+C100263,24,One year,Basic,16.490000000000002,395.76,Invoice,North,1,9
+C100264,63,Month-to-month,Premium,82.56,5201.28,PayPal,East,1,22
+C100265,59,Month-to-month,Standard,47.86,2823.74,Invoice,East,1,20
+C100266,18,One year,Basic,28.4,511.2,PayPal,North,0,27
+C100267,70,Month-to-month,Basic,26.38,1846.6,PayPal,East,2,3
+C100268,32,One year,Premium,77.66,2485.12,Card,East,0,10
+C100269,33,Month-to-month,Standard,33.34,1100.22,Invoice,South,1,1
+C100270,69,Two year,Basic,13.46,928.74,PayPal,South,2,9
+C100271,45,Two year,Premium,74.18,3338.1,Bank transfer,West,0,2
+C100272,45,Month-to-month,Premium,75.7,3406.5,PayPal,North,0,1
+C100273,55,Month-to-month,Standard,42.77,2352.35,Bank transfer,West,3,12
+C100274,40,Two year,Basic,25.4,1016.0,Bank transfer,West,0,5
+C100275,53,Two year,Premium,86.36,4577.08,Invoice,East,1,1
+C100276,63,Month-to-month,Premium,87.83,5533.29,PayPal,West,1,7
+C100277,24,One year,Standard,46.72,1121.28,Card,East,1,0
+C100278,45,One year,Standard,50.09,2254.05,Card,West,2,2
+C100279,31,Two year,Standard,43.94,1362.14,PayPal,South,1,23
+C100280,55,Two year,Standard,48.01,2640.55,Bank transfer,North,2,14
+C100281,59,Two year,Standard,41.57,2452.63,Bank transfer,West,1,13
+C100282,69,Two year,Standard,44.56,3074.64,PayPal,North,2,7
+C100283,17,Month-to-month,Basic,16.19,275.23,Invoice,North,0,11
+C100284,44,Two year,Standard,41.4,1821.6,PayPal,North,2,53
+C100285,11,Month-to-month,Basic,21.28,234.08,Bank transfer,North,1,2
+C100286,32,One year,Basic,16.33,522.56,Bank transfer,North,0,4
+C100287,66,Two year,Premium,83.77,5528.82,Invoice,West,3,4
+C100288,53,Month-to-month,Premium,78.42,4156.26,Invoice,West,3,10
+C100289,54,Two year,Basic,18.59,1003.86,Card,West,1,12
+C100290,39,One year,Basic,20.65,805.35,Bank transfer,East,0,26
+C100291,46,One year,Premium,71.39,3283.94,Bank transfer,North,1,12
+C100292,3,One year,Basic,22.9,68.7,Invoice,East,1,2
+C100293,69,Month-to-month,Standard,46.21,3188.49,PayPal,East,2,30
+C100294,50,Two year,Basic,22.35,1117.5,Invoice,West,0,22
+C100295,5,One year,Standard,48.35,241.75,Card,East,1,2
+C100296,32,Two year,Standard,56.53,1808.96,PayPal,South,1,20
+C100297,55,Month-to-month,Standard,41.87,2302.85,PayPal,South,2,9
+C100298,42,Month-to-month,Premium,86.58,3636.36,Card,West,4,7
+C100299,5,One year,Basic,11.14,55.7,PayPal,East,0,28
+C100300,31,Month-to-month,Basic,24.89,771.59,Bank transfer,South,2,1
+C100301,57,One year,Basic,21.33,1215.81,Card,West,2,20
+C100302,31,One year,Basic,23.64,732.84,Invoice,South,0,2
+C100303,10,Two year,Standard,51.84,518.4,Invoice,West,0,0
+C100304,29,Two year,Basic,33.18,962.22,Card,East,2,7
+C100305,22,Month-to-month,Standard,52.31,1150.82,Invoice,East,1,15
+C100306,20,Month-to-month,Basic,15.4,308.0,Bank transfer,East,0,13
+C100307,19,Month-to-month,Basic,13.27,252.13,PayPal,West,1,3
+C100308,11,Month-to-month,Basic,25.3,278.3,Card,South,1,7
+C100309,3,Month-to-month,Basic,21.92,65.76,Bank transfer,North,1,11
+C100310,14,Month-to-month,Standard,47.39,663.46,Card,East,0,6
+C100311,65,Month-to-month,Standard,38.22,2484.3,Card,East,3,16
+C100312,35,Month-to-month,Premium,78.63,2752.05,PayPal,West,2,19
+C100313,59,Two year,Basic,18.72,1104.48,Card,North,1,8
+C100314,7,One year,Premium,71.28,498.96,Card,East,0,12
+C100315,69,One year,Standard,48.11,3319.59,Bank transfer,North,1,1
+C100316,53,Month-to-month,Basic,21.62,1145.86,Card,North,2,9
+C100317,38,One year,Standard,33.82,1285.16,Bank transfer,South,0,5
+C100318,44,One year,Standard,43.72,1923.68,Bank transfer,South,1,12
+C100319,51,Month-to-month,Standard,56.36,2874.36,PayPal,South,2,8
+C100320,24,Two year,Basic,27.86,668.64,Invoice,South,2,8
+C100321,30,Month-to-month,Basic,24.84,745.2,Invoice,East,1,1
+C100322,6,Month-to-month,Standard,53.7,322.2,Invoice,South,1,26
+C100323,25,Month-to-month,Premium,76.6,1915.0,Invoice,East,0,5
+C100324,41,Two year,Standard,56.71,2325.11,PayPal,East,1,11
+C100325,61,Month-to-month,Basic,25.68,1566.48,Card,East,2,9
+C100326,27,Month-to-month,Premium,85.64,2312.28,Card,East,0,12
+C100327,2,One year,Basic,13.690000000000001,27.38,Invoice,West,1,9
+C100328,47,One year,Standard,40.42,1899.74,Invoice,East,3,5
+C100329,37,Month-to-month,Standard,50.21,1857.77,Invoice,South,0,2
+C100330,51,Two year,Basic,25.66,1308.66,Card,West,1,12
+C100331,34,Month-to-month,Standard,52.37,1780.58,Invoice,South,0,28
+C100332,40,Month-to-month,Premium,88.62,3544.8,Card,South,1,1
+C100333,10,One year,Basic,18.16,181.6,Card,East,3,38
+C100334,60,One year,Standard,45.68,2740.8,PayPal,East,2,2
+C100335,7,Month-to-month,Standard,55.34,387.38,Card,East,3,3
+C100336,32,Month-to-month,Basic,24.490000000000002,783.68,Card,South,5,8
+C100337,30,Month-to-month,Basic,29.53,885.9,PayPal,North,0,23
+C100338,55,Month-to-month,Standard,51.46,2830.3,Invoice,North,1,22
+C100339,70,One year,Standard,52.51,3675.7,Card,East,2,27
+C100340,55,Two year,Premium,85.25,4688.75,Card,South,0,16
+C100341,23,Two year,Standard,52.09,1198.07,Invoice,West,0,1
+C100342,14,Two year,Premium,83.35,1166.9,Card,West,0,1
+C100343,25,Month-to-month,Basic,22.71,567.75,PayPal,West,1,22
+C100344,5,Month-to-month,Basic,29.880000000000003,149.4,Invoice,South,3,63
+C100345,54,Month-to-month,Basic,30.48,1645.92,PayPal,West,1,6
+C100346,9,Month-to-month,Standard,51.0,459.0,Card,East,2,0
+C100347,8,Month-to-month,Basic,16.21,129.68,Invoice,South,1,2
+C100348,22,One year,Premium,75.93,1670.46,Card,East,3,16
+C100349,59,One year,Basic,21.94,1294.46,Bank transfer,West,2,0
+C100350,56,One year,Basic,21.35,1195.6,PayPal,North,3,8
+C100351,31,Month-to-month,Premium,77.52,2403.12,Bank transfer,South,1,4
+C100352,64,Two year,Basic,8.41,538.24,Invoice,West,1,0
+C100353,63,Month-to-month,Standard,57.54,3625.02,Bank transfer,North,0,1
+C100354,58,Two year,Basic,6.199999999999999,359.6,Bank transfer,West,2,5
+C100355,27,Month-to-month,Basic,27.17,733.59,Card,West,0,13
+C100356,20,Month-to-month,Standard,51.06,1021.2,Invoice,South,2,4
+C100357,49,Two year,Premium,87.99,4311.51,PayPal,West,1,5
+C100358,23,Month-to-month,Basic,9.55,219.65,Card,South,2,20
+C100359,4,Month-to-month,Basic,27.4,109.6,PayPal,East,1,28
+C100360,46,Month-to-month,Basic,17.06,784.76,Card,North,2,6
+C100361,65,Two year,Premium,71.14,4624.1,Bank transfer,North,0,3
+C100362,62,Month-to-month,Basic,13.73,851.26,PayPal,West,1,4
+C100363,10,Month-to-month,Standard,49.15,491.5,Invoice,North,0,9
+C100364,65,Month-to-month,Basic,18.82,1223.3,Card,East,0,11
+C100365,18,One year,Premium,80.44,1447.92,Bank transfer,South,3,1
+C100366,11,Month-to-month,Standard,37.13,408.43,Invoice,North,0,2
+C100367,33,One year,Premium,80.0,2640.0,Card,East,1,17
+C100368,69,One year,Standard,37.05,2556.45,Card,South,2,3
+C100369,51,Two year,Standard,46.78,2385.78,Invoice,East,0,0
+C100370,25,Two year,Standard,34.6,865.0,Bank transfer,East,0,11
+C100371,52,Month-to-month,Standard,51.71,2688.92,PayPal,West,2,24
+C100372,44,Month-to-month,Premium,79.2,3484.8,Invoice,South,0,13
+C100373,24,Month-to-month,Basic,18.63,447.12,Card,North,1,2
+C100374,19,One year,Basic,18.42,349.98,Bank transfer,South,1,1
+C100375,63,Month-to-month,Standard,42.56,2681.28,PayPal,West,2,41
+C100376,59,Month-to-month,Basic,20.71, ,Invoice,South,3,5
+C100377,1,Two year,Standard,44.27,44.27,Bank transfer,South,0,6
+C100378,58,One year,Basic,28.630000000000003,1660.54,Card,East,2,19
+C100379,56,Month-to-month,Basic,11.48,642.88,Card,East,0,8
+C100380,41,Two year,Standard,50.33,2063.53,Card,South,1,1
+C100381,42,Month-to-month,Basic,11.56,485.52,Card,North,1,8
+C100382,47,One year,Basic,19.64,923.08,Card,North,0,3
+C100383,67,Month-to-month,Basic,22.8,1527.6,Bank transfer,North,2,3
+C100384,23,One year,Standard,43.19,993.37,Invoice,East,2,14
+C100385,7,Month-to-month,Basic,20.01,140.07,Invoice,South,1,4
+C100386,10,Month-to-month,Standard,39.5,395.0,Card,West,4,3
+C100387,65,Month-to-month,Basic,17.09,1110.85,PayPal,West,1,19
+C100388,44,Month-to-month,Standard,43.42,1910.48,Invoice,East,1,1
+C100389,52,Two year,Basic,22.02,1145.04,PayPal,East,1,3
+C100390,12,Month-to-month,Basic,16.75,201.0,Bank transfer,East,3,4
+C100391,52,Two year,Standard,47.8,2485.6,Invoice,East,1,14
+C100392,17,Month-to-month,Standard,35.78,608.26,Bank transfer,North,1,13
+C100393,9,Month-to-month,Standard,44.06,396.54,Bank transfer,East,1,7
+C100394,9,Two year,Standard,49.769999999999996,447.93,PayPal,South,0,11
+C100395,31,Two year,Standard,44.18,1369.58,Card,North,0,6
+C100396,25,Month-to-month,Basic,22.03,550.75,Card,East,1,28
+C100397,30,Month-to-month,Standard,47.34,1420.2,PayPal,South,1,8
+C100398,46,One year,Basic,21.32,980.72,Bank transfer,South,0,11
+C100399,27,One year,Basic,13.15,355.05,Card,South,1,2
+C100400,20,Month-to-month,Standard,42.78,855.6,Bank transfer,West,2,5
+C100401,29,Month-to-month,Basic,22.09,640.61,Card,West,0,5
+C100402,2,Month-to-month,Standard,49.0,98.0,Bank transfer,West,1,22
+C100403,51,One year,Premium,77.53,3954.03,Invoice,East,3,17
+C100404,29,One year,Standard,49.29,1429.41,Invoice,East,0,8
+C100405,53,Month-to-month,Basic,10.84,574.52,Card,East,2,3
+C100406,59,Two year,Basic,32.86,1938.74,Bank transfer,East,0,1
+C100407,65,Month-to-month,Standard,46.28,3008.2,PayPal,East,0,26
+C100408,67,Month-to-month,Basic,15.64,1047.88,Invoice,South,0,5
+C100409,21,Month-to-month,Basic,23.32,489.72,Bank transfer,North,1,11
+C100410,47,Two year,Standard,33.99,1597.53,Bank transfer,South,1,2
+C100411,3,Month-to-month,Premium,72.38,217.14,Invoice,South,1,5
+C100412,24,Two year,Standard,49.269999999999996,1182.48,Invoice,North,2,30
+C100413,47,Two year,Premium,82.23,3864.81,Card,North,0,5
+C100414,44,One year,Standard,48.98,2155.12,PayPal,East,1,12
+C100415,47,Two year,Basic,20.54,965.38,PayPal,West,1,4
+C100416,2,Month-to-month,Premium,81.45,162.9,Card,East,0,4
+C100417,71,Month-to-month,Basic,28.27,2007.17,PayPal,North,0,31
+C100418,9,One year,Standard,33.480000000000004,301.32,PayPal,North,3,1
+C100419,63,Month-to-month,Standard,48.58,3060.54,Invoice,East,0,2
+C100420,3,Month-to-month,Standard,47.25,141.75,Invoice,West,3,18
+C100421,12,One year,Standard,44.33,531.96,Invoice,East,0,5
+C100422,8,Month-to-month,Basic,17.47,139.76,PayPal,West,1,11
+C100423,32,One year,Basic,24.73,791.36,Card,North,2,3
+C100424,22,Two year,Standard,55.6,1223.2,PayPal,South,1,16
+C100425,16,Month-to-month,Basic,23.21,371.36,Invoice,East,1,9
+C100426,66,Month-to-month,Standard,46.06,3039.96,Card,North,1,15
+C100427,60,Month-to-month,Basic,27.46,1647.6,PayPal,West,4,6
+C100428,28,Month-to-month,Standard,46.21,1293.88,Bank transfer,West,2,3
+C100429,46,Month-to-month,Basic,38.96,1792.16,Bank transfer,West,2,24
+C100430,65,Month-to-month,Standard,45.16,2935.4,Card,East,2,26
+C100431,22,One year,Premium,89.45,1967.9,Invoice,East,0,23
+C100432,39,One year,Premium,76.53,2984.67,Card,West,2,10
+C100433,33,One year,Standard,43.31,1429.23,Card,West,1,10
+C100434,21,One year,Premium,76.71,1610.91,Card,East,1,2
+C100435,69,One year,Standard,44.79,3090.51,Card,West,1,6
+C100436,18,Month-to-month,Standard,45.89,826.02,Invoice,South,0,15
+C100437,62,One year,Basic,22.77,1411.74,Bank transfer,East,2,6
+C100438,26,Two year,Basic,18.98,493.48,PayPal,West,0,14
+C100439,32,Month-to-month,Basic,26.42,845.44,PayPal,South,1,2
+C100440,42,One year,Standard,56.12,2357.04,Invoice,South,1,37
+C100441,54,Month-to-month,Standard,47.03,2539.62,Card,West,2,0
+C100442,43,Month-to-month,Basic,17.31,744.33,PayPal,North,0,0
+C100443,28,Month-to-month,Premium,86.01,2408.28,PayPal,East,0,11
+C100444,48,Month-to-month,Basic,22.759999999999998,1092.48,Card,East,1,1
+C100445,17,One year,Standard,45.57,774.69,Card,East,1,3
+C100446,21,Month-to-month,Basic,27.85,584.85,Invoice,South,2,2
+C100447,61,Month-to-month,Basic,23.71,1446.31,PayPal,East,1,4
+C100448,2,Month-to-month,Basic,30.060000000000002,60.12,PayPal,North,0,30
+C100449,37,One year,Standard,43.74,1618.38,Card,West,1,15
+C100450,22,Two year,Basic,14.52,319.44,Bank transfer,North,2,1
+C100451,37,Month-to-month,Standard,34.91,1291.67,Bank transfer,East,1,5
+C100452,14,Month-to-month,Basic,30.16,422.24,Invoice,North,0,3
+C100453,46,Month-to-month,Standard,43.12,1983.52,Card,South,2,6
+C100454,12,Month-to-month,Standard,41.06,492.72,Bank transfer,South,1,9
+C100455,28,Month-to-month,Premium,89.98,2519.44,Invoice,West,0,4
+C100456,44,Month-to-month,Standard,49.63,2183.72,Invoice,West,1,16
+C100457,58,Two year,Basic,16.71,969.18,Card,South,3,1
+C100458,68,Month-to-month,Basic,19.21,1306.28,Bank transfer,East,0,0
+C100459,62,Two year,Standard,37.33,2314.46,PayPal,West,0,7
+C100460,36,Month-to-month,Standard,42.19,1518.84,Bank transfer,East,2,6
+C100461,44,Month-to-month,Premium,77.2,3396.8,Card,East,3,10
+C100462,20,One year,Standard,44.49,889.8,Invoice,East,0,4
+C100463,57,Month-to-month,Basic,22.73,1295.61,Card,North,3,3
+C100464,8,Month-to-month,Standard,41.9,335.2,Invoice,North,1,38
+C100465,51,Two year,Basic,25.77,1314.27,PayPal,East,0,4
+C100466,35,Two year,Basic,26.89,941.15,Bank transfer,West,0,17
+C100467,55,Month-to-month,Basic,14.75,811.25,Invoice,North,1,26
+C100468,6,Month-to-month,Standard,34.85,209.1,PayPal,West,0,10
+C100469,64,Month-to-month,Standard,43.59,2789.76,Bank transfer,East,0,0
+C100470,60,One year,Standard,36.04,2162.4,PayPal,North,2,42
+C100471,43,Two year,Standard,31.89,1371.27,Bank transfer,South,2,21
+C100472,37,Month-to-month,Basic,20.93,774.41,Card,South,0,1
+C100473,8,Month-to-month,Basic,20.32,162.56,Bank transfer,West,2,1
+C100474,60,Month-to-month,Premium,75.87,4552.2,Bank transfer,West,2,2
+C100475,54,One year,Basic,19.12,1032.48,PayPal,North,2,40
+C100476,16,Month-to-month,Premium,74.68,1194.88,PayPal,West,3,13
+C100477,33,Two year,Standard,46.87,1546.71,Invoice,North,2,2
+C100478,6,Two year,Standard,32.3,193.8,Invoice,East,0,12
+C100479,25,Month-to-month,Premium,81.11,2027.75,Card,South,1,15
+C100480,13,Two year,Premium,75.7,984.1,PayPal,West,1,4
+C100481,52,Two year,Standard,40.67,2114.84,Invoice,South,0,21
+C100482,3,Month-to-month,Premium,79.21,237.63,Invoice,West,3,5
+C100483,56,One year,Standard,35.91,2010.96,Bank transfer,East,0,15
+C100484,33,One year,Basic,18.12,597.96,PayPal,North,2,1
+C100485,28,One year,Basic,21.96,614.88,Invoice,West,0,4
+C100486,61,Month-to-month,Standard,45.73,2789.53,Bank transfer,South,0,0
+C100487,5,Two year,Standard,41.21,206.05,Bank transfer,East,2,10
+C100488,65,Month-to-month,Premium,83.53,5429.45,Invoice,South,2,3
+C100489,19,Two year,Standard,29.41,558.79,Bank transfer,East,1,7
+C100490,6,Month-to-month,Standard,46.13,276.78,Card,North,1,12
+C100491,50,One year,Premium,89.48,4474.0,Card,North,1,5
+C100492,62,Two year,Premium,70.02,4341.24,Bank transfer,North,1,11
+C100493,66,Two year,Basic,22.47,1483.02,Card,West,4,2
+C100494,59,One year,Premium,69.36,4092.24,PayPal,West,1,1
+C100495,21,Month-to-month,Standard,53.04,1113.84,Bank transfer,South,1,15
+C100496,3,Month-to-month,Standard,42.31,126.93,Invoice,North,0,18
+C100497,3,Month-to-month,Premium,88.34,265.02,Invoice,West,0,19
+C100498,36,Two year,Standard,53.18,1914.48,Bank transfer,North,0,7
+C100499,61,Month-to-month,Premium,85.5,5215.5,Bank transfer,North,1,16

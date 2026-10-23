@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Churn Engine — Your Data</title>
+  <link rel="icon" href="./churn.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=Work+Sans:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --white:       #FFFFFF;
+      --off-white:   #FAFAF9;
+      --surface:     #F4F3F1;
+      --border:      #E8E7E4;
+      --border-dark: #D0CFC9;
+      --text-1:      #111110;
+      --text-2:      #6B6968;
+      --text-3:      #9E9C99;
+      --accent:      #16412B;
+      --accent-bg:   #EBF2EE;
+      --nav:         #043927;
+      --high:        #C93A3A;
+      --high-dim:    rgba(201,58,58,0.12);
+      --med:         #A06800;
+      --med-dim:     rgba(160,104,0,0.12);
+      --low:         #1E6B3C;
+      --low-dim:     rgba(30,107,60,0.12);
+      --font:        'Inter', -apple-system, system-ui, sans-serif;
+      --radius-sm:   8px;
+      --radius:      12px;
+      --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--off-white);
+      color: var(--text-1);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav (matches index.html) ── */
+    .nav { position: sticky; top: 0; z-index: 10; background: var(--nav); }
+    .nav-inner {
+      max-width: 1040px; margin: 0 auto; padding: 0 24px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none;
+      font-family: 'Work Sans', var(--font); font-size: 15px; font-weight: 600;
+    }
+    .nav-logo img { height: 28px; filter: brightness(0) invert(1); }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { font-size: 14px; color: rgba(255,255,255,0.7); text-decoration: none; }
+    .nav-links a:hover, .nav-links a[aria-current] { color: #fff; }
+
+    main { max-width: 1040px; margin: 0 auto; padding: 48px 24px 96px; }
+
+    .eyebrow {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-3); margin-bottom: 12px;
+    }
+    h1 { font-size: clamp(32px, 5vw, 44px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; }
+    .lede { color: var(--text-2); max-width: 640px; margin-top: 16px; font-size: 17px; }
+
+    .connection {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+      margin-top: 24px; font-size: 13px; color: var(--text-2);
+    }
+    .connection input { width: 240px; max-width: 100%; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); flex: none; }
+    .dot.ok { background: var(--low); }
+    .dot.bad { background: var(--high); }
+
+    /* ── Steps ── */
+    .step {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 28px; margin-top: 24px;
+    }
+    .step[hidden] { display: none; }
+    .step-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+    .step-num {
+      flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-bg);
+      color: var(--accent); font-size: 13px; font-weight: 600;
+      display: grid; place-items: center; transform: translateY(-2px);
+    }
+    h2 { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+    .step-head p { color: var(--text-2); font-size: 14px; }
+    h3 { font-size: 14px; font-weight: 600; margin: 24px 0 10px; }
+
+    /* ── Controls ── */
+    input, select {
+      font: inherit; font-size: 14px; color: var(--text-1); background: var(--white);
+      border: 1px solid var(--border-dark); border-radius: var(--radius-sm); padding: 8px 10px;
+    }
+    input:focus-visible, select:focus-visible, button:focus-visible, .dropzone:focus-within {
+      outline: 2px solid var(--accent); outline-offset: 2px;
+    }
+    button {
+      font: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+      border-radius: var(--radius-sm); padding: 10px 18px; border: 1px solid transparent;
+      transition: background 150ms ease, transform 100ms ease;
+    }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .primary { background: var(--accent); color: #fff; }
+    .primary:hover:not(:disabled) { background: #0f2e1e; }
+    .ghost { background: transparent; color: var(--accent); border-color: var(--border-dark); }
+    .ghost:hover:not(:disabled) { background: var(--accent-bg); }
+    .link { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; font-weight: 500; }
+
+    .dropzone {
+      display: block; border: 1.5px dashed var(--border-dark); border-radius: var(--radius);
+      padding: 32px 20px; text-align: center; cursor: pointer; background: var(--off-white);
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+    .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: var(--accent-bg); }
+    .dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .dropzone strong { display: block; font-weight: 500; }
+    .dropzone span { color: var(--text-2); font-size: 13px; }
+    .hint { color: var(--text-2); font-size: 13px; margin-top: 12px; }
+
+    .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .field small { display: block; color: var(--text-3); font-size: 12px; margin-top: 4px; }
+    .field select, .field input { width: 100%; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 24px; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { font-weight: 500; color: var(--text-2); background: var(--surface); }
+    tr:last-child td { border-bottom: 0; }
+    td.reason { color: var(--text-2); white-space: normal; min-width: 180px; }
+    td.num { font-variant-numeric: tabular-nums; text-align: right; }
+    .role { font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 99px; background: var(--surface); color: var(--text-2); }
+    .role.numeric, .role.categorical { background: var(--accent-bg); color: var(--accent); }
+    .role.target { background: var(--high-dim); color: var(--high); }
+
+    /* ── Results ── */
+    .status { display: flex; align-items: center; gap: 10px; color: var(--text-2); }
+    .spinner {
+      width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-dark);
+      border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .stat { background: var(--surface); border-radius: var(--radius-sm); padding: 14px 16px; }
+    .stat b { display: block; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: 12px; color: var(--text-2); }
+
+    .explain { color: var(--text-2); font-size: 13px; margin-top: 10px; max-width: 720px; }
+
+    .bars { display: grid; gap: 8px; }
+    .bar-row { display: grid; grid-template-columns: minmax(90px, 200px) 1fr 52px; gap: 12px; align-items: center; font-size: 13px; }
+    .bar-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-track { height: 8px; background: var(--surface); border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+    .bar-row .val { text-align: right; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+    .tier { font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 99px; }
+    .tier.High { background: var(--high-dim); color: var(--high); }
+    .tier.Medium { background: var(--med-dim); color: var(--med); }
+    .tier.Low { background: var(--low-dim); color: var(--low); }
+
+    .notice {
+      border-radius: var(--radius-sm); padding: 12px 14px; font-size: 14px; margin-top: 16px;
+      background: var(--med-dim); color: #6b4600;
+    }
+    .notice.error { background: var(--high-dim); color: #8f2626; }
+    .notice ul { margin-left: 18px; }
+
+    .models { display: grid; gap: 8px; }
+    .model-row {
+      display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between;
+      border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 14px;
+    }
+    .model-row .meta { color: var(--text-2); font-size: 13px; }
+
+    @media (max-width: 640px) {
+      main { padding: 32px 16px 64px; }
+      .nav-inner { padding: 0 16px; }
+      .nav-links li:first-child { display: none; }
+      .step { padding: 20px 16px; }
+      .bar-row { grid-template-columns: 96px 1fr 44px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="./index.html" class="nav-logo"><img src="./churn.svg" alt="" />Churn Engine</a>
+    <ul class="nav-links">
+      <li><a href="./index.html">Telecom demo</a></li>
+      <li><a href="./engine.html" aria-current="page">Use your data</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <p class="eyebrow">Bring your own data</p>
+  <h1>Train a churn model on your customers</h1>
+  <p class="lede">
+    Upload past customers with a column saying who left. The engine works out your columns,
+    trains and compares two models, shows how well it predicts on customers it never saw,
+    then scores your current customers into risk tiers.
+  </p>
+
+  <div class="connection">
+    <span class="dot" id="api-dot"></span>
+    <span id="api-status">Checking API…</span>
+    <label for="api-url" class="visually-hidden" style="position:absolute;left:-9999px">API URL</label>
+    <input id="api-url" spellcheck="false" />
+    <button class="ghost" id="api-save" style="padding:7px 12px">Connect</button>
+  </div>
+
+  <!-- ── Your models ── -->
+  <section class="step" id="models-step" hidden>
+    <div class="step-head"><div><h2>Your models</h2></div></div>
+    <div class="models" id="models"></div>
+  </section>
+
+  <!-- ── 1. Upload ── -->
+  <section class="step" id="upload-step">
+    <div class="step-head">
+      <span class="step-num">1</span>
+      <div>
+        <h2>Upload past customers</h2>
+        <p>A CSV with one row per customer and a column that says whether they churned.</p>
+      </div>
+    </div>
+    <label class="dropzone" id="train-drop">
+      <input type="file" accept=".csv,text/csv" id="train-file" />
+      <strong>Drop a CSV here, or click to choose</strong>
+      <span>Up to 50 MB · at least 200 rows · at least 50 who churned and 50 who stayed</span>
+    </label>
+    <p class="hint">
+      No data handy? <button class="link" id="use-sample">Use the sample dataset</button>
+      (3,000 customers of a made-up subscription business).
+      Don't upload names, emails, or phone numbers — they don't help the model.
+    </p>
+    <div id="upload-error"></div>
+  </section>
+
+  <!-- ── 2. Configure ── -->
+  <section class="step" id="config-step" hidden>
+    <div class="step-head">
+      <span class="step-num">2</span>
+      <div>
+        <h2>Check how your columns were read</h2>
+        <p id="dataset-summary"></p>
+      </div>
+    </div>
+
+    <div class="fields">
+      <div class="field">
+        <label for="target">Churn column</label>
+        <select id="target"></select>
+        <small>Must have exactly two values</small>
+      </div>
+      <div class="field">
+        <label for="positive">Value that means “churned”</label>
+        <select id="positive"></select>
+      </div>
+      <div class="field">
+        <label for="id-col">Customer ID column</label>
+        <select id="id-col"></select>
+        <small>Kept in results, never used to predict</small>
+      </div>
+    </div>
+
+    <h3>Columns</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Use</th><th>Column</th><th>Read as</th><th>Why</th><th class="num">Empty</th></tr></thead>
+        <tbody id="columns"></tbody>
+      </table>
+    </div>
+
+    <h3>Risk tiers</h3>
+    <div class="fields">
+      <div class="field">
+        <label for="t-high">High Risk at or above</label>
+        <input id="t-high" type="number" min="0.01" max="0.99" step="0.05" value="0.6" />
+      </div>
+      <div class="field">
+        <label for="t-med">Medium Risk at or above</label>
+        <input id="t-med" type="number" min="0.01" max="0.99" step="0.05" value="0.4" />
+        <small>Everything below is Low Risk</small>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="train-btn">Train model</button>
+      <span class="hint" style="margin:0">Usually takes a few seconds.</span>
+    </div>
+    <div id="config-error"></div>
+  </section>
+
+  <!-- ── 3. Results ── -->
+  <section class="step" id="results-step" hidden>
+    <div class="step-head">
+      <span class="step-num">3</span>
+      <div>
+        <h2 id="results-title">Training…</h2>
+        <p id="results-sub"></p>
+      </div>
+    </div>
+    <div id="results"></div>
+  </section>
+
+  <!-- ── 4. Score ── -->
+  <section class="step" id="score-step" hidden>
+    <div class="step-head">
+      <span class="step-num">4</span>
+      <div>
+        <h2>Score your current customers</h2>
+        <p>Upload customers with the same columns (the churn column isn't needed). You'll get the CSV back with a risk score for each.</p>
+      </div>
+    </div>
+    <label class="dropzone" id="score-drop">
+      <input type="file" accept=".csv,text/csv" id="score-file" />
+      <strong>Drop a CSV to score</strong>
+      <span>Up to 50 MB</span>
+    </label>
+    <p class="hint" id="score-sample-hint" hidden>
+      Trained on the sample? <button class="link" id="score-sample">Score 500 sample customers</button>
+    </p>
+    <div id="score-error"></div>
+    <div id="score-results"></div>
+  </section>
+</main>
+
+<script>
+(() => {
+  // ── API connection ───────────────────────────────────────────────────────
+  const params = new URLSearchParams(location.search);
+  const stored = (() => { try { return localStorage.getItem('churnApi'); } catch { return null; } })();
+  let API = (params.get('api') || stored || 'http://localhost:8000').replace(/\/$/, '');
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pct = (x, d = 0) => x == null ? '—' : `${(x * 100).toFixed(d)}%`;
+
+  let dataset = null;   // upload response
+  let model = null;     // current model meta
+  let usedSample = false;
+
+  async function api(path, opts = {}) {
+    const res = await fetch(API + path, opts);
+    if (!res.ok) {
+      let detail = `${res.status} ${res.statusText}`;
+      try {
+        const body = await res.json();
+        detail = Array.isArray(body.detail) ? body.detail.map((d) => d.msg).join('; ') : (body.detail || detail);
+      } catch {}
+      throw new Error(detail);
+    }
+    return res;
+  }
+
+  function showError(el, err) {
+    $(el).innerHTML = err ? `<div class="notice error">${esc(err.message || err)}</div>` : '';
+  }
+
+  async function checkApi() {
+    $('api-url').value = API;
+    try {
+      await api('/');
+      $('api-dot').className = 'dot ok';
+      $('api-status').textContent = 'Connected to';
+      loadModels();
+    } catch {
+      $('api-dot').className = 'dot bad';
+      $('api-status').textContent = "Can't reach the API at";
+    }
+  }
+
+  $('api-save').onclick = () => {
+    API = $('api-url').value.trim().replace(/\/$/, '');
+    try { localStorage.setItem('churnApi', API); } catch {}
+    checkApi();
+  };
+
+  // ── Model list ───────────────────────────────────────────────────────────
+  async function loadModels() {
+    try {
+      const models = await (await api('/models')).json();
+      $('models-step').hidden = !models.length;
+      $('models').innerHTML = models.map((m) => `
+        <div class="model-row">
+          <div>
+            <strong>${esc(m.name)}</strong>
+            <div class="meta">${esc(m.status)}${m.auc_roc != null ? ` · AUC ${m.auc_roc.toFixed(2)}` : ''}${m.rows ? ` · ${m.rows.toLocaleString()} rows` : ''} · ${new Date(m.created_at).toLocaleString()}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            ${m.status === 'ready' ? `<button class="ghost" data-open="${esc(m.id)}">Open</button>` : ''}
+            <button class="ghost" data-delete="${esc(m.id)}" aria-label="Delete ${esc(m.name)}">Delete</button>
+          </div>
+        </div>`).join('');
+    } catch {}
+  }
+
+  $('models').onclick = async (e) => {
+    const open = e.target.dataset.open, del = e.target.dataset.delete;
+    if (open) {
+      model = await (await api(`/models/${open}`)).json();
+      usedSample = /sample_customers/.test(model.dataset_filename || '');
+      renderResults();
+      $('results-step').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    if (del && confirm('Delete this model? This cannot be undone.')) {
+      await api(`/models/${del}`, { method: 'DELETE' });
+      if (model && model.id === del) { model = null; $('results-step').hidden = $('score-step').hidden = true; }
+      loadModels();
+    }
+  };
+
+  // ── Drop zones ───────────────────────────────────────────────────────────
+  function dropzone(zoneId, inputId, onFile) {
+    const zone = $(zoneId), input = $(inputId);
+    input.onchange = () => input.files[0] && onFile(input.files[0]);
+    zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('drag'); };
+    zone.ondragleave = () => zone.classList.remove('drag');
+    zone.ondrop = (e) => {
+      e.preventDefault(); zone.classList.remove('drag');
+      e.dataTransfer.files[0] && onFile(e.dataTransfer.files[0]);
+    };
+  }
+
+  async function sampleFile(name) {
+    const res = await fetch(`./examples/${name}`);
+    if (!res.ok) throw new Error(`Couldn't load the sample file (${res.status}).`);
+    return new File([await res.blob()], name, { type: 'text/csv' });
+  }
+
+  // ── 1. Upload ────────────────────────────────────────────────────────────
+  async function uploadTraining(file) {
+    showError('upload-error');
+    usedSample = file.name === 'sample_customers.csv';
+    const zone = $('train-drop').querySelector('strong');
+    zone.textContent = `Uploading ${file.name}…`;
+    try {
+      const form = new FormData(); form.append('file', file);
+      dataset = await (await api('/datasets', { method: 'POST', body: form })).json();
+      renderConfig();
+      zone.textContent = `${file.name} uploaded — drop another to replace it`;
+    } catch (err) {
+      zone.textContent = 'Drop a CSV here, or click to choose';
+      showError('upload-error', err);
+    }
+  }
+  dropzone('train-drop', 'train-file', uploadTraining);
+  $('use-sample').onclick = async () => {
+    try { uploadTraining(await sampleFile('sample_customers.csv')); } catch (err) { showError('upload-error', err); }
+  };
+
+  // ── 2. Configure ─────────────────────────────────────────────────────────
+  function renderConfig() {
+    const cols = dataset.columns;
+    $('dataset-summary').textContent =
+      `${dataset.filename} · ${dataset.rows.toLocaleString()} rows · ${dataset.columns.length} columns`;
+
+    const binary = cols.filter((c) => c.n_unique === 2);
+    $('target').innerHTML = (binary.length ? binary : cols).map((c) =>
+      `<option ${c.name === dataset.suggested_target ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+    $('id-col').innerHTML = '<option value="">None</option>' + cols.map((c) =>
+      `<option ${c.name === dataset.suggested_id ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+
+    renderPositive();
+    renderColumns();
+    $('config-step').hidden = false;
+    $('config-step').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  const POSITIVE = /^(1|1\.0|true|yes|y|t|churn|churned|exited|left|cancell?ed|attrited)/i;
+  function renderPositive() {
+    const col = dataset.columns.find((c) => c.name === $('target').value);
+    const values = col ? col.samples.slice().sort() : [];
+    const guess = values.find((v) => POSITIVE.test(v));
+    $('positive').innerHTML = values.map((v) =>
+      `<option ${v === guess ? 'selected' : ''}>${esc(v)}</option>`).join('');
+  }
+
+  function renderColumns() {
+    const target = $('target').value, id = $('id-col').value;
+    $('columns').innerHTML = dataset.columns.map((c) => {
+      let role = c.role, reason = c.reason;
+      if (c.name === target) { role = 'target'; reason = 'churn label'; }
+      else if (c.name === id) { role = 'id'; reason = 'customer identifier'; }
+      else if (c.role === 'target' || c.role === 'id') { role = 'categorical'; reason = `${c.n_unique} values`; }
+      const usable = role === 'numeric' || role === 'categorical';
+      return `<tr>
+        <td><input type="checkbox" data-col="${esc(c.name)}" ${usable ? 'checked' : 'disabled'} aria-label="Use ${esc(c.name)}"></td>
+        <td>${esc(c.name)}</td>
+        <td><span class="role ${role}">${role}</span></td>
+        <td class="reason">${esc(reason)}${c.samples.length ? ` · e.g. ${esc(c.samples.slice(0, 3).join(', '))}` : ''}</td>
+        <td class="num">${c.missing_pct}%</td>
+      </tr>`;
+    }).join('');
+  }
+
+  $('target').onchange = () => { renderPositive(); renderColumns(); };
+  $('id-col').onchange = renderColumns;
+
+  $('train-btn').onclick = async () => {
+    showError('config-error');
+    const exclude = [...document.querySelectorAll('#columns input:not(:disabled):not(:checked)')].map((i) => i.dataset.col);
+    const body = {
+      dataset_id: dataset.id,
+      target: $('target').value,
+      positive_label: $('positive').value || null,
+      id_column: $('id-col').value || null,
+      exclude_columns: exclude,
+      tier_thresholds: { high: +$('t-high').value, medium: +$('t-med').value },
+      name: dataset.filename,
+    };
+    $('train-btn').disabled = true;
+    try {
+      model = await (await api('/models', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      })).json();
+      renderResults();
+      $('results-step').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      poll();
+    } catch (err) {
+      showError('config-error', err);
+    } finally {
+      $('train-btn').disabled = false;
+    }
+  };
+
+  async function poll() {
+    while (model && (model.status === 'queued' || model.status === 'training')) {
+      await new Promise((r) => setTimeout(r, 1200));
+      try { model = await (await api(`/models/${model.id}`)).json(); } catch { break; }
+      renderResults();
+    }
+    loadModels();
+  }
+
+  // ── 3. Results ───────────────────────────────────────────────────────────
+  const MODEL_NAMES = { lightgbm: 'LightGBM (gradient-boosted trees)', logistic_regression: 'Logistic regression' };
+
+  function renderResults() {
+    $('results-step').hidden = false;
+    $('score-step').hidden = model.status !== 'ready';
+    $('score-sample-hint').hidden = !usedSample;
+
+    if (model.status === 'queued' || model.status === 'training') {
+      $('results-title').textContent = 'Training…';
+      $('results-sub').textContent = '';
+      $('results').innerHTML = `<div class="status"><span class="spinner"></span>${model.status === 'queued' ? 'Waiting for a free training slot' : 'Training and comparing models'}…</div>`;
+      return;
+    }
+    if (model.status === 'failed') {
+      $('results-title').textContent = 'Training failed';
+      $('results-sub').textContent = '';
+      $('results').innerHTML = `<div class="notice error">${esc(model.error)}</div>
+        <p class="hint">Your upload is kept — change the settings above and train again.</p>`;
+      return;
+    }
+
+    const r = model.report;
+    const other = Object.keys(r.comparison).find((k) => k !== r.model_type);
+    const lift = r.tiers[0].actual_churn_rate != null ? r.tiers[0].actual_churn_rate / r.churn_rate : null;
+    $('results-title').textContent = 'Your model is ready';
+    $('results-sub').textContent = `${model.name} · ${r.rows.toLocaleString()} customers · ${pct(r.churn_rate, 1)} churned`;
+
+    const maxImp = Math.max(...r.top_features.map((f) => f.importance), 0.0001);
+    const maxTier = Math.max(...r.tiers.map((t) => t.customers), 1);
+
+    $('results').innerHTML = `
+      ${r.warnings.length ? `<div class="notice"><strong>Check this</strong><ul>${r.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul></div>` : ''}
+
+      <div class="stats" style="margin-top:${r.warnings.length ? 16 : 0}px">
+        <div class="stat"><b>${r.metrics.auc_roc.toFixed(2)}</b><span>AUC on unseen customers</span></div>
+        <div class="stat"><b>${pct(r.metrics.accuracy)}</b><span>Accuracy at 50% cutoff</span></div>
+        <div class="stat"><b>${lift ? lift.toFixed(1) + '×' : '—'}</b><span>High Risk churn vs. average</span></div>
+        <div class="stat"><b>${r.split.test.toLocaleString()}</b><span>Customers held out to test</span></div>
+      </div>
+      <p class="explain">
+        AUC measures how well the model ranks churners above stayers: 0.5 is guessing, 1.0 is perfect.
+        It was measured on ${r.split.test.toLocaleString()} customers the model never saw during training.
+        <strong>${esc(MODEL_NAMES[r.model_type])}</strong> was chosen because it did better on a separate validation set
+        (${r.comparison[r.model_type].validation_auc.toFixed(3)} vs ${r.comparison[other].validation_auc.toFixed(3)} for ${esc(MODEL_NAMES[other].toLowerCase())}).
+      </p>
+
+      <h3>Do the risk tiers work?</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tier</th><th class="num">Test customers</th><th style="width:40%"></th><th class="num">Actually churned</th></tr></thead>
+          <tbody>${r.tiers.map((t) => `<tr>
+            <td><span class="tier ${t.tier.split(' ')[0]}">${t.tier}</span></td>
+            <td class="num">${t.customers.toLocaleString()}</td>
+            <td><div class="bar-track"><div class="bar-fill" style="width:${t.customers / maxTier * 100}%"></div></div></td>
+            <td class="num">${pct(t.actual_churn_rate)}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <p class="explain">If the model is useful, each tier's real churn rate should be clearly higher than the one below it.</p>
+
+      <h3>What drives churn in your data</h3>
+      <div class="bars">${r.top_features.map((f) => `
+        <div class="bar-row">
+          <span class="name" title="${esc(f.feature)}">${esc(f.feature)}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${f.importance / maxImp * 100}%"></div></div>
+          <span class="val">${pct(f.importance)}</span>
+        </div>`).join('')}</div>
+      <p class="explain">Share of the model's decisions based on each column. This shows what the model relies on, not proof of cause.</p>
+
+      ${r.ignored_columns.length ? `<h3>Not used</h3><p class="explain" style="margin:0">${r.ignored_columns.map((c) => `<strong>${esc(c.name)}</strong> — ${esc(c.reason)}`).join(' · ')}</p>` : ''}
+    `;
+  }
+
+  // ── 4. Score ─────────────────────────────────────────────────────────────
+  function parseCsv(text) {
+    const rows = []; let row = [], field = '', quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (quoted) {
+        if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+        else if (c === '"') quoted = false;
+        else field += c;
+      } else if (c === '"') quoted = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); rows.push(row); row = []; field = '';
+      } else field += c;
+    }
+    if (field || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  async function scoreFile(file) {
+    showError('score-error');
+    $('score-results').innerHTML = `<div class="status" style="margin-top:16px"><span class="spinner"></span>Scoring ${esc(file.name)}…</div>`;
+    try {
+      const form = new FormData(); form.append('file', file);
+      const res = await api(`/models/${model.id}/predict/csv`, { method: 'POST', body: form });
+      const text = await res.text();
+      const filename = (res.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/)?.[1] || 'scored.csv';
+      const url = URL.createObjectURL(new Blob([text], { type: 'text/csv' }));
+
+      const [header, ...rows] = parseCsv(text).filter((r) => r.length > 1);
+      const col = (name) => header.indexOf(name);
+      const iProb = col('churn_probability'), iTier = col('risk_tier');
+      const idCol = model.report.id_column, iId = idCol ? col(idCol) : -1;
+      const counts = { 'High Risk': 0, 'Medium Risk': 0, 'Low Risk': 0 };
+      rows.forEach((r) => counts[r[iTier]]++);
+      const top = rows.slice().sort((a, b) => b[iProb] - a[iProb]).slice(0, 10);
+
+      $('score-results').innerHTML = `
+        <div class="stats" style="margin-top:20px">
+          ${Object.entries(counts).map(([t, n]) => `<div class="stat"><b>${n.toLocaleString()}</b><span class="tier ${t.split(' ')[0]}">${t}</span></div>`).join('')}
+        </div>
+        <div class="actions"><a class="primary" href="${url}" download="${esc(filename)}" style="text-decoration:none;padding:10px 18px;border-radius:8px;display:inline-block">Download ${esc(filename)}</a></div>
+        <h3>Highest-risk customers</h3>
+        <div class="table-wrap"><table>
+          <thead><tr>${iId >= 0 ? `<th>${esc(idCol)}</th>` : '<th>Row</th>'}<th class="num">Churn probability</th><th>Tier</th><th>Suggested action</th></tr></thead>
+          <tbody>${top.map((r) => `<tr>
+            <td>${iId >= 0 ? esc(r[iId]) : rows.indexOf(r) + 1}</td>
+            <td class="num">${pct(+r[iProb], 1)}</td>
+            <td><span class="tier ${r[iTier].split(' ')[0]}">${esc(r[iTier])}</span></td>
+            <td class="reason">${esc(r[col('recommended_action')])}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>`;
+    } catch (err) {
+      $('score-results').innerHTML = '';
+      showError('score-error', err);
+    }
+  }
+  dropzone('score-drop', 'score-file', scoreFile);
+  $('score-sample').onclick = async () => {
+    try { scoreFile(await sampleFile('customers_to_score.csv')); } catch (err) { showError('score-error', err); }
+  };
+
+  checkApi();
+})();
+</script>
+</body>
+</html>
