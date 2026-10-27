@@ -218,10 +218,17 @@
   <div class="connection">
     <span class="dot" id="api-dot"></span>
     <span id="api-status">Checking API…</span>
-    <label for="api-url" class="visually-hidden" style="position:absolute;left:-9999px">API URL</label>
+    <label for="api-url" style="position:absolute;left:-9999px">API URL</label>
     <input id="api-url" spellcheck="false" />
-    <button class="ghost" id="api-save" style="padding:7px 12px">Connect</button>
   </div>
+  <div class="connection" style="margin-top:8px">
+    <label for="api-key">API key</label>
+    <input id="api-key" type="password" spellcheck="false" autocomplete="off" placeholder="ck_…" />
+    <button class="ghost" id="api-save" style="padding:7px 12px">Connect</button>
+    <button class="link" id="signup" hidden>Get a free key</button>
+    <span id="key-status"></span>
+  </div>
+  <div id="new-key"></div>
 
   <!-- ── Your models ── -->
   <section class="step" id="models-step" hidden>
@@ -346,6 +353,8 @@
   const params = new URLSearchParams(location.search);
   const stored = (() => { try { return localStorage.getItem('churnApi'); } catch { return null; } })();
   let API = (params.get('api') || stored || 'http://localhost:8000').replace(/\/$/, '');
+  // The key stays in this browser only (it's the visitor's own key)
+  let KEY = (() => { try { return localStorage.getItem('churnKey') || ''; } catch { return ''; } })();
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -356,14 +365,20 @@
   let usedSample = false;
 
   async function api(path, opts = {}) {
-    const res = await fetch(API + path, opts);
+    const headers = { ...(opts.headers || {}) };
+    if (KEY) headers.Authorization = `Bearer ${KEY}`;
+    const res = await fetch(API + '/v1' + path, { ...opts, headers });
     if (!res.ok) {
-      let detail = `${res.status} ${res.statusText}`;
+      let message = `${res.status} ${res.statusText}`, code = null;
       try {
-        const body = await res.json();
-        detail = Array.isArray(body.detail) ? body.detail.map((d) => d.msg).join('; ') : (body.detail || detail);
+        const { error } = await res.json();
+        code = error.code;
+        const fields = Array.isArray(error.details) ? error.details.map((d) => `${d.field}: ${d.message}`).join('; ') : '';
+        message = error.message + (fields ? ` (${fields})` : '');
+        if (error.details && error.details.missing_columns) message += ` Missing: ${error.details.missing_columns.slice(0, 15).join(', ')}`;
       } catch {}
-      throw new Error(detail);
+      if (code === 'missing_api_key' || code === 'invalid_api_key') message = 'Enter a valid API key above first.';
+      throw Object.assign(new Error(message), { code });
     }
     return res;
   }
@@ -374,27 +389,57 @@
 
   async function checkApi() {
     $('api-url').value = API;
+    $('api-key').value = KEY;
     try {
-      await api('/');
+      const health = await (await api('/health')).json();
       $('api-dot').className = 'dot ok';
       $('api-status').textContent = 'Connected to';
-      loadModels();
+      $('signup').hidden = health.signup !== 'open';
     } catch {
       $('api-dot').className = 'dot bad';
       $('api-status').textContent = "Can't reach the API at";
+      return;
+    }
+    if (!KEY) { $('key-status').textContent = 'Needed to upload and train.'; return; }
+    try {
+      const me = await (await api('/account')).json();
+      $('key-status').textContent = `${me.name} · ${me.tier} tier · ${me.usage.models}/${me.limits.max_models} models`;
+      loadModels();
+    } catch (err) {
+      $('key-status').textContent = err.message;
     }
   }
 
-  $('api-save').onclick = () => {
+  function saveConnection() {
     API = $('api-url').value.trim().replace(/\/$/, '');
-    try { localStorage.setItem('churnApi', API); } catch {}
+    KEY = $('api-key').value.trim();
+    try { localStorage.setItem('churnApi', API); localStorage.setItem('churnKey', KEY); } catch {}
     checkApi();
+  }
+  $('api-save').onclick = saveConnection;
+
+  $('signup').onclick = async () => {
+    const name = prompt('Your name (shown on your account):');
+    if (!name) return;
+    try {
+      const res = await fetch(API + '/v1/signup', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error.message);
+      $('api-key').value = body.api_key;
+      $('new-key').innerHTML = `<div class="notice">Your API key: <code>${esc(body.api_key)}</code><br>
+        Copy it somewhere safe — it won't be shown again. You can use it from code too (see /docs).</div>`;
+      saveConnection();
+    } catch (err) {
+      showError('new-key', err);
+    }
   };
 
   // ── Model list ───────────────────────────────────────────────────────────
   async function loadModels() {
     try {
-      const models = await (await api('/models')).json();
+      const models = (await (await api('/models')).json()).data;
       $('models-step').hidden = !models.length;
       $('models').innerHTML = models.map((m) => `
         <div class="model-row">

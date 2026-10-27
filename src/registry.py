@@ -53,12 +53,18 @@ class Registry:
 
     # ── Helpers ──
 
-    def _dir(self, kind: str, item_id: str) -> Path:
+    def _dir(self, kind: str, item_id: str, owner: str | None = None) -> Path:
+        """
+        Resolve an item's directory. With owner, items belonging to someone
+        else raise NotFound too — callers can't tell them apart from missing ones.
+        """
         # IDs come from URLs — only accept our own format (blocks path traversal)
         if not ID_RE.match(item_id or ""):
             raise NotFound(item_id)
         path = self.root / kind / item_id
         if not (path / "meta.json").exists():
+            raise NotFound(item_id)
+        if owner is not None and self._read_meta(path).get("owner") != owner:
             raise NotFound(item_id)
         return path
 
@@ -74,13 +80,14 @@ class Registry:
 
     # ── Datasets ──
 
-    def save_dataset(self, df: pd.DataFrame, filename: str, schema: dict) -> dict:
+    def save_dataset(self, df: pd.DataFrame, filename: str, schema: dict, owner: str | None = None) -> dict:
         dataset_id = _new_id()
         path = self.root / "datasets" / dataset_id
         path.mkdir()
         df.to_csv(path / "data.csv", index=False)
         meta = {
             "id":         dataset_id,
+            "owner":      owner,
             "filename":   filename,
             "rows":       int(len(df)),
             "columns":    int(df.shape[1]),
@@ -90,15 +97,15 @@ class Registry:
         self._write_meta(path, meta)
         return meta
 
-    def get_dataset(self, dataset_id: str) -> dict:
-        return self._read_meta(self._dir("datasets", dataset_id))
+    def get_dataset(self, dataset_id: str, owner: str | None = None) -> dict:
+        return self._read_meta(self._dir("datasets", dataset_id, owner))
 
-    def load_dataset(self, dataset_id: str) -> pd.DataFrame:
-        path = self._dir("datasets", dataset_id) / "data.csv"
+    def load_dataset(self, dataset_id: str, owner: str | None = None) -> pd.DataFrame:
+        path = self._dir("datasets", dataset_id, owner) / "data.csv"
         return pd.read_csv(path, keep_default_na=True, low_memory=False)
 
-    def delete_dataset(self, dataset_id: str) -> None:
-        shutil.rmtree(self._dir("datasets", dataset_id))
+    def delete_dataset(self, dataset_id: str, owner: str | None = None) -> None:
+        shutil.rmtree(self._dir("datasets", dataset_id, owner))
 
     # ── Models ──
 
@@ -117,14 +124,18 @@ class Registry:
             self._write_meta(path, meta)
         return meta
 
-    def get_model(self, model_id: str) -> dict:
-        return self._read_meta(self._dir("models", model_id))
+    def get_model(self, model_id: str, owner: str | None = None) -> dict:
+        return self._read_meta(self._dir("models", model_id, owner))
 
-    def list_models(self) -> list[dict]:
+    def list_models(self, owner: str | None = None) -> list[dict]:
         metas = []
         for path in (self.root / "models").iterdir():
-            if (path / "meta.json").exists():
-                metas.append(self._read_meta(path))
+            try:
+                meta = self._read_meta(path)
+            except (FileNotFoundError, json.JSONDecodeError):
+                continue    # deleted or half-written while we were listing
+            if owner is None or meta.get("owner") == owner:
+                metas.append(meta)
         return sorted(metas, key=lambda m: m["created_at"], reverse=True)
 
     def save_pipeline(self, model_id: str, pipeline) -> None:
@@ -142,8 +153,8 @@ class Registry:
                 self._cache.popitem(last=False)
         return pipeline
 
-    def delete_model(self, model_id: str) -> None:
-        path = self._dir("models", model_id)
+    def delete_model(self, model_id: str, owner: str | None = None) -> None:
+        path = self._dir("models", model_id, owner)
         with self._lock:
             self._cache.pop(model_id, None)
         shutil.rmtree(path)

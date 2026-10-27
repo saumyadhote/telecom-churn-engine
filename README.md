@@ -1,3 +1,6 @@
+> [!WARNING]
+> **This project is on hold.** It is not actively developed or maintained right now, and there is no hosted deployment. The code runs locally as described below.
+
 # Telecom Churn Prediction Engine
 
 > End-to-end ML system that predicts 60-day customer churn for a 100K-customer telecom dataset, segments customers into risk tiers, and serves real-time predictions via a production REST API.
@@ -7,7 +10,7 @@
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![AUC-ROC](https://img.shields.io/badge/AUC--ROC-0.692-4CAF50)](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-54%20passed-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/Tests-96%20passed-brightgreen)](#running-tests)
 
 ---
 
@@ -106,34 +109,108 @@ The engine isn't tied to the telecom dataset. Any business with a history of cus
 
 **In the browser:** open `ui/engine.html` (with the API running) and click *Use the sample dataset* to try it with 3,000 synthetic subscription customers.
 
-**Over the API:**
+**From code** — see the [Developer API](#developer-api) below.
+
+Requirements: at least 200 labelled rows, with at least 50 churned and 50 retained. Uploaded training data is deleted once a model trains successfully (pass `keep_dataset: true` to keep it); it's kept after a failure so you can retry. Don't upload names, emails or phone numbers — they don't help the model.
+
+---
+
+## Developer API
+
+A versioned REST API at `/v1`, with interactive docs at `/docs` and the OpenAPI spec at `/openapi.json`.
+
+### 1. Get an API key
+
+Ask the operator for one, or — if the server runs with `CHURN_OPEN_SIGNUP=true` — create a free-tier key yourself:
 
 ```bash
-# 1. Upload → returns dataset id, inferred schema, suggested target/ID columns
-curl -F file=@ui/examples/sample_customers.csv localhost:8000/datasets
-
-# 2. Train (returns immediately; status goes queued → training → ready | failed)
-curl -H 'Content-Type: application/json' \
-  -d '{"dataset_id": "<id>", "target": "churned"}' localhost:8000/models
-
-# 3. Report: metrics, tiers vs actual churn, top drivers, input schema
-curl localhost:8000/models/<model_id>
-
-# 4. Score — JSON (≤1,000 rows) or CSV in, CSV out
-curl -F file=@ui/examples/customers_to_score.csv \
-  localhost:8000/models/<model_id>/predict/csv -o scored.csv
+curl -X POST https://<host>/v1/signup -H 'Content-Type: application/json' -d '{"name": "Ada"}'
+# → {"api_key": "ck_…", "account": {...}}   (the key is shown once)
 ```
+
+Send it on every request as `Authorization: Bearer ck_…` (or `X-API-Key: ck_…`). Each key's account sees only its own datasets and models.
+
+### 2. Python
+
+```bash
+pip install "./clients/python[pandas]"
+```
+
+```python
+from churn_engine import ChurnEngine
+
+client = ChurnEngine(api_key="ck_…", base_url="https://<host>")   # or env CHURN_ENGINE_API_KEY / CHURN_ENGINE_URL
+
+model = client.train("customers.csv")              # upload + train + wait; churn column auto-detected
+print(model.auc, model.report["tiers"])
+
+# Send the columns in model.input_columns — at least half must be present; the rest count as unknown
+client.predict(model.id, [{"customer_id": "C1", "tenure_months": 3, "contract": "Month-to-month", ...}])
+scored = client.score(model.id, "current_customers.csv", output="scored.csv")   # → DataFrame
+```
+
+Errors raise typed exceptions (`AuthenticationError`, `NotFoundError`, `ValidationError`, `RateLimitError`, `TrainingFailedError`); 429s are retried automatically, honouring `Retry-After`. See [`clients/python/README.md`](clients/python/README.md).
+
+### 3. Any language (curl)
+
+```bash
+KEY=ck_…; API=https://<host>/v1
+curl -H "Authorization: Bearer $KEY" -F file=@customers.csv $API/datasets                # → dataset id + schema
+curl -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
+     -d '{"dataset_id": "<id>", "target": "churned"}' $API/models                        # → 202, status "queued"
+curl -H "Authorization: Bearer $KEY" $API/models/<model_id>                              # poll until "ready"
+curl -H "Authorization: Bearer $KEY" -F file=@current.csv $API/models/<model_id>/predict/csv -o scored.csv
+```
+
+### Endpoints
 
 | Endpoint | Purpose |
 |---|---|
-| `POST /datasets` | Upload a training CSV (≤ 50 MB) |
-| `POST /models` | Train; optional `id_column`, `positive_label`, `exclude_columns`, `tier_thresholds` |
-| `GET /models`, `GET /models/{id}` | List models / full training report |
-| `POST /models/{id}/predict` | Score up to 1,000 customers as JSON |
-| `POST /models/{id}/predict/csv` | Upload a CSV, download it scored |
-| `DELETE /datasets/{id}`, `DELETE /models/{id}` | Remove data or a model |
+| `GET /v1/health` | Liveness; says whether signup is open (no key needed) |
+| `POST /v1/signup` | Self-serve free key, if enabled (no key needed) |
+| `GET /v1/account` | Your tier, limits, and usage |
+| `POST /v1/datasets` | Upload a training CSV; returns inferred column roles |
+| `GET`/`DELETE /v1/datasets/{id}` | Inspect / remove an upload |
+| `POST /v1/models` | Train (async); optional `id_column`, `positive_label`, `exclude_columns`, `tier_thresholds` |
+| `GET /v1/models`, `GET /v1/models/{id}` | List models / status + full training report |
+| `DELETE /v1/models/{id}` | Remove a model |
+| `POST /v1/models/{id}/predict` | Score ≤ 1,000 customers as JSON |
+| `POST /v1/models/{id}/predict/csv` | Upload a CSV, download it scored |
 
-Requirements: at least 200 labelled rows, with at least 50 churned and 50 retained. Uploaded training data is deleted once a model trains successfully (pass `keep_dataset: true` to keep it); it's kept after a failure so you can retry. Storage lives in `storage/` (override with `CHURN_STORAGE_DIR`). There is no authentication yet — don't expose this publicly with real customer data, and don't upload names, emails or phone numbers.
+### Errors
+
+Every error has the same shape; branch on `code`, which is stable:
+
+```json
+{"error": {"code": "model_not_ready", "message": "Model is training, not ready to score.", "details": {"status": "training"}}}
+```
+
+Common codes: `missing_api_key`, `invalid_api_key` (401) · `dataset_not_found`, `model_not_found` (404) · `model_not_ready`, `model_limit_reached` (409) · `file_too_large` (413) · `validation_error`, `invalid_target`, `insufficient_columns` (422) · `rate_limited`, `training_quota_exceeded` (429).
+
+### Limits
+
+| Tier | Requests / min | Models | Trainings / 24h | Upload |
+|---|---|---|---|---|
+| `free` (self-serve) | 60 | 5 | 20 | 20 MB |
+| `standard` (issued) | 300 | 50 | 200 | 50 MB |
+
+Responses carry `X-RateLimit-Limit` and `X-RateLimit-Remaining`; a 429 adds `Retry-After` (seconds).
+
+### Running it yourself (operators)
+
+```bash
+python -m src.keys create --name "Ada" --email ada@example.com    # prints a key once (standard tier)
+python -m src.keys list                                           # accounts, key prefixes, last used
+python -m src.keys revoke ck_AbC1234                              # by prefix, full key, or key_ id
+```
+
+| Env var | Default | |
+|---|---|---|
+| `CHURN_STORAGE_DIR` | `storage/` | Uploads, models, and `accounts.db` (keys stored hashed) |
+| `CHURN_OPEN_SIGNUP` | `false` | Allow `POST /v1/signup` (free tier, 5 signups/hour per IP) |
+| `CHURN_MAX_CONCURRENT_TRAINING` | `1` | Training jobs run at once; the rest queue |
+
+Rate limits are kept in memory, so they apply per server process — run a single instance, or move the limiter to Redis before scaling out.
 
 ---
 
@@ -152,10 +229,16 @@ telecom-churn-engine/
 │   ├── schema.py           ← infers column roles in any uploaded CSV
 │   ├── engine.py           ← bring-your-own-data training + scoring pipeline
 │   ├── registry.py         ← file-based storage for datasets and models
+│   ├── accounts.py         ← developer accounts + hashed API keys (SQLite)
+│   ├── keys.py             ← admin CLI: create / list / revoke keys
 │   └── sample_data.py      ← synthetic example data generator
 ├── api/
-│   ├── main.py             ← FastAPI application (telecom demo endpoints)
-│   └── engine.py           ← bring-your-own-data endpoints
+│   ├── main.py             ← FastAPI app + telecom demo endpoints
+│   ├── v1.py               ← public developer API (/v1)
+│   ├── schemas.py          ← request/response contract (drives /docs)
+│   ├── auth.py             ← API-key auth + rate limiting
+│   └── errors.py           ← uniform {"error": {code, message}} responses
+├── clients/python/         ← `churn-engine` Python client library
 ├── ui/
 │   ├── index.html          ← project showcase page
 │   ├── engine.html         ← upload → train → score web app
@@ -165,7 +248,9 @@ telecom-churn-engine/
 │   ├── test_api.py         ← telecom endpoint tests (model mocked)
 │   ├── test_preprocess.py  ← feature engineering unit tests
 │   ├── test_engine.py      ← schema inference + training engine (real models)
-│   └── test_engine_api.py  ← end-to-end upload → train → score API tests
+│   ├── test_v1_api.py      ← /v1: auth, isolation, limits, errors, full flow
+│   ├── test_accounts.py    ← key storage + admin CLI
+│   └── test_client.py      ← Python client against the real API
 ├── Dockerfile
 └── requirements.txt
 ```
@@ -297,11 +382,13 @@ pytest tests/ -v
 ```
 
 ```
+tests/test_accounts.py     11 passed   (key storage + admin CLI)
 tests/test_api.py           9 passed   (telecom endpoints, model mocked)
+tests/test_client.py       12 passed   (Python client against the real API)
 tests/test_engine.py       24 passed   (schema inference + engine, real models)
-tests/test_engine_api.py   14 passed   (upload → train → score, end to end)
 tests/test_preprocess.py    7 passed
-54 passed
+tests/test_v1_api.py       33 passed   (auth, isolation, limits, errors, full flow)
+96 passed
 ```
 
 ---

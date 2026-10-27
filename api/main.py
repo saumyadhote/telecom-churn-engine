@@ -9,8 +9,8 @@ Endpoints:
     POST /predict      → score a single customer
     POST /predict/batch → score a list of customers (max 1000)
 
-    Bring your own data (api/engine.py):
-    POST /datasets → POST /models → GET /models/{id} → POST /models/{id}/predict[/csv]
+    Developer API (api/v1.py) — API key required:
+    POST /v1/datasets → POST /v1/models → GET /v1/models/{id} → POST /v1/models/{id}/predict[/csv]
 
 Run locally:
     uvicorn api.main:app --reload --port 8000
@@ -29,7 +29,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from api.engine import get_registry, router as engine_router
+from api.auth import rate_limit_headers_middleware
+from api.errors import install_error_handlers
+from api.v1 import get_registry, public as v1_public, router as v1_router
 from src.predict import ChurnPredictor
 
 logging.basicConfig(level=logging.INFO)
@@ -63,14 +65,16 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Telecom Churn Prediction Engine",
     description=(
-        "ML-powered REST API that scores customers by churn risk "
-        "and returns a recommended retention action.\n\n"
-        "**Bring your own data:** upload any labelled customer CSV to `/datasets`, "
-        "train a model on it with `/models`, then score current customers.\n\n"
-        "**Built-in telecom demo model** (`/predict`): LightGBM | AUC-ROC 0.69\n\n"
+        "Train a churn model on your own customer data, then score customers by churn risk "
+        "with a recommended retention action.\n\n"
+        "**Developer API (`/v1`)** — authenticate with `Authorization: Bearer <api key>`. "
+        "Upload a labelled CSV to `/v1/datasets`, train with `/v1/models`, poll until `ready`, "
+        "then score with `/v1/models/{id}/predict`. Errors always look like "
+        "`{\"error\": {\"code\", \"message\", \"details\"}}`; branch on `code`.\n\n"
+        "**Telecom demo** (`/predict`, no key): the original LightGBM model, AUC-ROC 0.69.\n\n"
         "Built by Saumya — GCI World 2026 / personal portfolio project."
     ),
-    version="1.0.0",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -81,10 +85,14 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["Content-Disposition"],
+    # Key auth uses a header, not cookies, so open CORS doesn't expose ambient credentials
+    expose_headers=["Content-Disposition", "X-RateLimit-Limit", "X-RateLimit-Remaining", "Retry-After"],
 )
+app.middleware("http")(rate_limit_headers_middleware)
+install_error_handlers(app)
 
-app.include_router(engine_router)
+app.include_router(v1_public)
+app.include_router(v1_router)
 
 # ── Schemas ────────────────────────────────────────────────────────────────────
 
@@ -158,7 +166,7 @@ def root():
         "service": "Telecom Churn Prediction Engine",
         "version": "1.0.0",
         "docs":    "/docs",
-        "bring_your_own_data": "POST /datasets → POST /models → POST /models/{id}/predict",
+        "developer_api": "/v1 — see /docs",
     }
 
 

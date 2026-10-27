@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "churn-engine"
+version = "0.1.0"
+description = "Python client for the Churn Engine API: train churn models on your own customer data and score customers."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["httpx>=0.25"]
+
+[project.optional-dependencies]
+pandas = ["pandas>=1.5"]
+
+[tool.setuptools]
+packages = ["churn_engine"]
