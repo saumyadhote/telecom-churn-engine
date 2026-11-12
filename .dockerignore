@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+storage
+data/*.csv
+tests
+ui
+clients/python/build
+clients/python/*.egg-info
+*.md
+!README.md
