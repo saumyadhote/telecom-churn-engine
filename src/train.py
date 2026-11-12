@@ -2,7 +2,12 @@
 train.py
 --------
 Train Logistic Regression (baseline) and LightGBM (final model),
-evaluate both, and persist the best model + encoders to disk.
+evaluate both, and persist the LightGBM model + encoders to disk.
+
+Data is split three ways (60 / 20 / 20, stratified):
+    train      → fit both models
+    validation → LightGBM early stopping picks the number of trees here
+    test       → touched once, at the end, for the reported metrics
 
 Usage:
     python -m src.train \
@@ -32,7 +37,7 @@ logger = logging.getLogger(__name__)
 # ── Hyperparameters ────────────────────────────────────────────────────────────
 
 LGBM_PARAMS = {
-    "n_estimators":    300,
+    "n_estimators":    300,          # upper bound — early stopping on validation picks the count
     "learning_rate":   0.05,
     "num_leaves":      63,
     "min_child_samples": 30,
@@ -48,13 +53,15 @@ LR_PARAMS = {
     "C":           0.1,
 }
 
+VAL_SIZE    = 0.2
 TEST_SIZE   = 0.2
 RANDOM_SEED = 42
+EARLY_STOPPING_ROUNDS = 50
 
 
 # ── Training ───────────────────────────────────────────────────────────────────
 
-def train(client_path: str, record_path: str, output_dir: str) -> None:
+def train(client_path: str, record_path: str, output_dir: str) -> dict:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -63,11 +70,15 @@ def train(client_path: str, record_path: str, output_dir: str) -> None:
     df = load_data(client_path, record_path)
     X, y, encoders = build_feature_matrix(df, fit_encoders=True)
 
-    # 2. Train / test split
-    X_train, X_test, y_train, y_test = train_test_split(
+    # 2. Train / validation / test split — the test set is only used for the final report
+    X_rest, X_test, y_rest, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_SEED, stratify=y
     )
-    logger.info(f"Train: {len(X_train):,}  |  Test: {len(X_test):,}")
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_rest, y_rest, test_size=VAL_SIZE / (1 - TEST_SIZE),
+        random_state=RANDOM_SEED, stratify=y_rest,
+    )
+    logger.info(f"Train: {len(X_train):,}  |  Validation: {len(X_val):,}  |  Test: {len(X_test):,}")
 
     # 3. Baseline — Logistic Regression
     logger.info("Training Logistic Regression baseline...")
@@ -81,9 +92,9 @@ def train(client_path: str, record_path: str, output_dir: str) -> None:
     lgbm = lgb.LGBMClassifier(**LGBM_PARAMS)
     lgbm.fit(
         X_train, y_train,
-        eval_set=[(X_test, y_test)],
+        eval_set=[(X_val, y_val)],
         callbacks=[
-            lgb.early_stopping(50, verbose=False),
+            lgb.early_stopping(EARLY_STOPPING_ROUNDS, verbose=False),
             lgb.log_evaluation(period=-1),
         ],
     )
@@ -103,13 +114,17 @@ def train(client_path: str, record_path: str, output_dir: str) -> None:
         "lightgbm":            lgbm_metrics,
         "feature_count":       X.shape[1],
         "train_rows":          len(X_train),
+        "validation_rows":     len(X_val),
         "test_rows":           len(X_test),
+        "lightgbm_trees":      int(lgbm.best_iteration_ or lgbm.n_estimators),
+        "split":               "60/20/20 stratified; early stopping on validation, metrics on test",
     }
     with open(output_dir / "results.json", "w") as f:
         json.dump(results, f, indent=2)
 
     logger.info(f"Model saved → {output_dir / 'lgbm_churn.pkl'}")
     logger.info(f"Results saved → {output_dir / 'results.json'}")
+    return results
 
 
 # ── CLI ────────────────────────────────────────────────────────────────────────

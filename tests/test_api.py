@@ -20,13 +20,15 @@ from fastapi.testclient import TestClient
 @pytest.fixture
 def mock_predictor():
     """Return a mock ChurnPredictor that doesn't need model files."""
-    mock = MagicMock()
-    mock.predict.return_value = {
+    result = {
         "churn_probability":  0.74,
         "churn_prediction":   1,
         "risk_tier":          "High Risk",
         "recommended_action": "Priority outreach: device upgrade offer.",
     }
+    mock = MagicMock()
+    mock.predict.return_value = result
+    mock.predict_batch.side_effect = lambda customers: [result for _ in customers]
     return mock
 
 
@@ -120,3 +122,34 @@ def test_model_info_endpoint(client):
     data = resp.json()
     assert "model"     in data
     assert "risk_tiers" in data
+
+
+# ── Input validation ───────────────────────────────────────────────────────────
+
+def test_predict_rejects_empty_record(client):
+    resp = client.post("/predict", json={})
+    assert resp.status_code == 422
+
+
+def test_predict_rejects_negative_tenure(client):
+    resp = client.post("/predict", json={**SAMPLE_CUSTOMER, "months": -400})
+    assert resp.status_code == 422
+
+
+def test_predict_rejects_absurd_revenue(client):
+    resp = client.post("/predict", json={**SAMPLE_CUSTOMER, "rev_Mean": 1e12})
+    assert resp.status_code == 422
+
+
+def test_predict_allows_negative_trends(client):
+    """Usage and revenue trends are legitimately negative — that's the churn signal."""
+    resp = client.post("/predict", json={**SAMPLE_CUSTOMER, "change_mou": -500, "change_rev": -40})
+    assert resp.status_code == 200
+
+
+def test_missing_categoricals_stay_unknown(client, mock_predictor):
+    """A missing 'area' must reach the model as None (→ MISSING), not 0 (a real category)."""
+    client.post("/predict", json={"months": 12})
+    sent = mock_predictor.predict.call_args.args[0]
+    assert sent["area"] is None
+    assert sent["mou_Mean"] == 0

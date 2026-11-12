@@ -115,26 +115,40 @@ def encode_categoricals(
     (encoded_df, encoders_dict)
     """
     df = df.copy()
-    cat_cols = df.select_dtypes(include="object").columns.tolist()
+    # object *and* pandas string dtypes — pandas 3 reads text columns as "str", not object
+    cat_cols = [
+        c for c in df.columns
+        if pd.api.types.is_object_dtype(df[c]) or pd.api.types.is_string_dtype(df[c])
+    ]
 
     if fit_encoders:
         encoders = {}
         for col in cat_cols:
-            df[col] = df[col].fillna("MISSING")
+            df[col] = df[col].fillna("MISSING").astype(str)
             le = LabelEncoder()
-            df[col] = le.fit_transform(df[col].astype(str))
+            # Always learn a MISSING code, so inference can map blanks *and* unseen
+            # categories to it even when this column had no blanks in training
+            le.fit(pd.concat([df[col], pd.Series(["MISSING"])], ignore_index=True))
+            df[col] = le.transform(df[col])
             encoders[col] = le
     else:
         assert encoders is not None, "Must provide encoders when fit_encoders=False"
         for col in cat_cols:
             if col in encoders:
-                df[col] = df[col].fillna("MISSING")
-                # Handle unseen labels gracefully
-                known = set(encoders[col].classes_)
-                df[col] = df[col].astype(str).apply(
-                    lambda x: x if x in known else "MISSING"
-                )
-                df[col] = encoders[col].transform(df[col])
+                le = encoders[col]
+                known = set(le.classes_)
+                values = df[col].fillna("MISSING").astype(str)
+                if "MISSING" in known:
+                    # Blanks and categories never seen in training → MISSING
+                    df[col] = le.transform(values.where(values.isin(known), "MISSING"))
+                else:
+                    # Encoders fitted before MISSING was always learned: unseen → -1
+                    # (below every real code) instead of crashing the request
+                    codes = pd.Series(-1, index=df.index)
+                    seen = values.isin(known)
+                    if seen.any():
+                        codes[seen] = le.transform(values[seen])
+                    df[col] = codes
 
     return df, encoders
 
