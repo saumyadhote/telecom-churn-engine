@@ -3,14 +3,14 @@
 
 # Telecom Churn Prediction Engine
 
-> End-to-end ML system that predicts 60-day customer churn for a 100K-customer telecom dataset, segments customers into risk tiers, and serves real-time predictions via a production REST API.
+> End-to-end ML system that predicts 60-day customer churn for a 100K-customer telecom dataset, segments customers into risk tiers, and serves predictions through a FastAPI REST API.
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://python.org)
 [![LightGBM](https://img.shields.io/badge/Model-LightGBM-F7931E)](https://lightgbm.readthedocs.io)
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![AUC-ROC](https://img.shields.io/badge/AUC--ROC-0.692-4CAF50)](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)
+[![AUC-ROC](https://img.shields.io/badge/AUC--ROC-0.69-4CAF50)](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-96%20passed-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/Tests-110%20passed-brightgreen)](#running-tests)
 
 ---
 
@@ -22,10 +22,10 @@ Telecom operators lose significant recurring revenue to churn without knowing *w
 
 - **Bring your own data:** upload any labelled customer CSV, train a churn model on it in seconds, and score your current customers — no code, no fixed schema ([details](#use-it-on-your-own-data))
 - Trains a LightGBM classifier on 100,000 customers with ~50% observed churn rate
-- Engineers 10+ behavioural features from raw call records and billing data
+- Engineers 4 behavioural features (call completion rate, drop rate, revenue per minute, overage flag) on top of ~100 raw usage, billing and account columns
 - Classifies customers into High / Medium / Low risk tiers with prescriptive retention actions
 - Serves predictions through a FastAPI REST interface with single and batch endpoints
-- Projects **$9.9M net uplift** (14× ROI) at a 30% retention success rate
+- Projects **$9.9M net uplift** (14× ROI) under stated assumptions — an illustrative business case, [see below](#business-impact-projection)
 
 ---
 
@@ -35,12 +35,12 @@ Telecom operators lose significant recurring revenue to churn without knowing *w
 
 | Model | AUC-ROC | F1-Score | Accuracy |
 |---|---|---|---|
-| Logistic Regression (baseline) | 0.604 | 0.562 | 57.7% |
-| **LightGBM (final)** | **0.692** | **0.639** | **63.7%** |
+| Logistic Regression (baseline) | 0.605 | 0.556 | 57.6% |
+| **LightGBM (final)** | **0.692** | **0.636** | **63.5%** |
 
-Evaluated on a stratified 80/20 train-test split (20,000 held-out customers).
+These are the numbers in [`models/results.json`](models/results.json), from the last training run on the full dataset (20,000 held-out customers). That run used an 80/20 split with LightGBM early stopping on the test set, which makes the AUC slightly optimistic. Training now uses a 60/20/20 train / validation / test split, with early stopping on validation only; the table will be refreshed on the next full-data run. The hyperparameters are a single hand-picked set, not the result of a search.
 
-### Business Impact
+### Business Impact (projection)
 
 | Risk Tier | Score Threshold | Customers | Churn Rate | Revenue at Risk |
 |---|---|---|---|---|
@@ -53,11 +53,13 @@ Projected outcome at 30% retention success and $15 / customer intervention cost:
 - Intervention cost: **$760K**
 - **Net uplift: $9.9M — 14× ROI**
 
+This is an illustrative projection, not a measured outcome: the 30% success rate and $15 cost are assumptions, and the 0.40 / 0.60 tier cut-offs are round defaults rather than values derived from them. The per-tier counts and revenue figures come from a one-off analysis over the full dataset; that notebook isn't in this repository, so they can't be reproduced from the committed code.
+
 ---
 
 ## Key Findings
 
-EDA across 100+ raw features surfaced five dominant signals:
+Exploratory analysis across 100+ raw features (a one-off pass, not committed here) surfaced five dominant signals:
 
 | Feature | Insight |
 |---|---|
@@ -89,10 +91,10 @@ Raw Data (Client.csv + Record.csv)
   src/predict.py          ← ChurnPredictor class, risk tier logic
         │
         ▼
-  api/main.py             ← FastAPI app (3 endpoints, Pydantic v2 validation)
+  api/main.py             ← FastAPI app (/predict, /predict/batch, /model-info + /v1)
         │
         ▼
-  Docker container        ← portable, production-ready deployment
+  Docker container        ← portable deployment (not currently hosted)
 ```
 
 ---
@@ -246,12 +248,14 @@ telecom-churn-engine/
 ├── models/                 ← serialised artefacts (excluded from git)
 ├── tests/
 │   ├── test_api.py         ← telecom endpoint tests (model mocked)
+│   ├── test_end_to_end.py  ← telecom path with nothing mocked
 │   ├── test_preprocess.py  ← feature engineering unit tests
 │   ├── test_engine.py      ← schema inference + training engine (real models)
 │   ├── test_v1_api.py      ← /v1: auth, isolation, limits, errors, full flow
 │   ├── test_accounts.py    ← key storage + admin CLI
 │   └── test_client.py      ← Python client against the real API
 ├── Dockerfile
+├── LICENSE
 └── requirements.txt
 ```
 
@@ -262,7 +266,7 @@ telecom-churn-engine/
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/telecom-churn-engine.git
+git clone https://github.com/saumyadhote/telecom-churn-engine.git
 cd telecom-churn-engine
 pip install -r requirements.txt
 ```
@@ -281,24 +285,25 @@ python -m src.train \
   --output models/
 ```
 
-Expected output:
+Example output (numbers from the last full-data run, before the three-way split; they vary slightly between runs and library versions):
 ```
 Loading data...
 Loaded merged dataset: 100,000 rows × 100 columns
 Churn rate: 49.56%
+Train: 60,000  |  Validation: 20,000  |  Test: 20,000
 
 ──────────────────────────────────────────────
   Logistic Regression (baseline)
 ──────────────────────────────────────────────
-  AUC-ROC  : 0.6043
-  F1 Score : 0.5622
-  Accuracy : 0.5765
+  AUC-ROC  : 0.6045
+  F1 Score : 0.5564
+  Accuracy : 0.5758
 ──────────────────────────────────────────────
   LightGBM (final model)
 ──────────────────────────────────────────────
-  AUC-ROC  : 0.6927
-  F1 Score : 0.6387
-  Accuracy : 0.6370
+  AUC-ROC  : 0.6915
+  F1 Score : 0.6363
+  Accuracy : 0.6352
 
 Model saved → models/lgbm_churn.pkl
 ```
@@ -344,7 +349,13 @@ Interactive docs available at **http://localhost:8000/docs**.
 }
 ```
 
+Send any subset of the fields (at least one). Missing numeric fields count as 0 and missing categorical fields as unknown. Out-of-range values (negative tenure or call counts, absurd revenue, `NaN`/`Infinity`) and empty records are rejected with `422`.
+
+`churn_prediction` and `risk_tier` use deliberately separate cut-offs: the prediction is a plain yes/no at 0.5, while tiers group customers for action (High ≥ 0.60, Medium ≥ 0.40). A customer at 0.45 is predicted to stay but is still Medium Risk — worth a cheap loyalty nudge.
+
 ### `POST /predict/batch` — Score up to 1,000 customers
+
+Scored in one vectorized model call; results come back in input order and match `/predict` exactly.
 
 ```json
 {
@@ -357,12 +368,13 @@ Interactive docs available at **http://localhost:8000/docs**.
 ```json
 {
   "model": "LightGBM (gradient boosted trees)",
-  "performance": { "auc_roc": 0.6927, "f1": 0.6387, "accuracy": 0.637 },
+  "performance": { "auc_roc": 0.6915, "f1": 0.6363, "accuracy": 0.6352 },
   "risk_tiers": {
-    "High Risk":   "churn_probability > 0.60",
-    "Medium Risk": "churn_probability 0.40–0.60",
+    "High Risk":   "churn_probability >= 0.60",
+    "Medium Risk": "0.40 <= churn_probability < 0.60",
     "Low Risk":    "churn_probability < 0.40"
-  }
+  },
+  "churn_prediction_cutoff": 0.5
 }
 ```
 
@@ -383,12 +395,13 @@ pytest tests/ -v
 
 ```
 tests/test_accounts.py     11 passed   (key storage + admin CLI)
-tests/test_api.py           9 passed   (telecom endpoints, model mocked)
+tests/test_api.py          14 passed   (telecom endpoints + input validation, model mocked)
 tests/test_client.py       12 passed   (Python client against the real API)
+tests/test_end_to_end.py    9 passed   (synthetic telecom data → train → real model → API)
 tests/test_engine.py       24 passed   (schema inference + engine, real models)
 tests/test_preprocess.py    7 passed
 tests/test_v1_api.py       33 passed   (auth, isolation, limits, errors, full flow)
-96 passed
+110 passed
 ```
 
 ---
@@ -408,6 +421,16 @@ docker run -p 8000:8000 \
 
 ---
 
+## Known Limitations
+
+- **No public deployment.** The showcase page (`ui/index.html`) calls the real model only when it can reach a running API — locally, or a deployed one via `?api=https://your-host`. Otherwise it shows a clearly labelled illustrative estimate, not the model.
+- **Telecom demo endpoints are open.** `/predict`, `/predict/batch` and `/model-info` need no key and allow any origin; only `/v1` has API keys and rate limits. Rate limits are in-memory, per process.
+- **No hyperparameter search or cross-validation** for the telecom model — one fixed parameter set, one split, no confidence interval on the AUC.
+- **Missing-value handling differs slightly between training and serving:** training fills numeric gaps with the column median, the API fills omitted numeric fields with 0.
+- **No monitoring or drift detection**, and model artefacts are loose files in `models/` rather than a versioned registry.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -418,7 +441,7 @@ docker run -p 8000:8000 \
 | API framework | FastAPI + Uvicorn |
 | Schema validation | Pydantic v2 |
 | Model persistence | joblib |
-| Testing | pytest + httpx |
+| Testing | pytest + httpx, GitHub Actions |
 | Containerisation | Docker |
 
 ---

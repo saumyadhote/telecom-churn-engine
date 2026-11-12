@@ -589,6 +589,14 @@
       line-height: 1.55;
     }
 
+    .opera-result-source {
+      margin-top: 8px;
+      font-size: 9px;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.55);
+    }
+    .opera-result-source.illustrative { color: #E8B04A; }
+
     /* Slider below the card */
     .predictor-slider-wrap {
       max-width: 960px;
@@ -1438,11 +1446,11 @@
           <span class="hero-stat-val">100K</span>
         </div>
         <div class="hero-stat-row">
-          <span class="hero-stat-key">Projected net uplift</span>
+          <span class="hero-stat-key">Projected net uplift (illustrative)</span>
           <span class="hero-stat-val">$9.9M<span class="hero-stat-sub">/ yr</span></span>
         </div>
         <div class="hero-stat-row">
-          <span class="hero-stat-key">Return on investment</span>
+          <span class="hero-stat-key">Projected return on investment</span>
           <span class="hero-stat-val">14×</span>
         </div>
       </div>
@@ -1458,7 +1466,7 @@
       <div class="how-card reveal">
         <div class="how-number">01</div>
         <h3 class="how-title">Spot at-risk customers up to 60 days early</h3>
-        <p class="how-body">Six standard CRM signals — tenure, device age, usage drift, and billing trends — are scored daily against a LightGBM classifier trained on 100,000 real subscribers. No custom data pipelines required.</p>
+        <p class="how-body">Standard CRM signals — tenure, device age, usage drift, and billing trends — are scored by a LightGBM classifier trained on 100,000 subscriber records, through a REST API you can call from any scheduler or pipeline.</p>
         <span class="how-stat">60 days</span>
       </div>
       <div class="how-card reveal reveal-delay-1">
@@ -1471,7 +1479,7 @@
         <div class="how-number">03</div>
         <h3 class="how-title">Turn retention spend into measurable ROI</h3>
         <p class="how-body">Precision targeting routes expensive interventions only to the subscribers worth saving. High-risk customers get account manager calls; low-risk customers get automated emails. Stop blanket discounting.</p>
-        <span class="how-stat">14× ROI</span>
+        <span class="how-stat">14× projected ROI</span>
       </div>
     </div>
   </div>
@@ -1497,6 +1505,7 @@
         <div class="opera-result-tier" id="operaTier">High Risk</div>
         <div class="opera-result-prob" id="operaProb">Probability: —</div>
         <div class="opera-result-action" id="operaAction">—</div>
+        <div class="opera-result-source" id="operaSource"></div>
       </div>
 
       <!-- Form card — top right -->
@@ -1664,7 +1673,7 @@
 <section class="performance-section" id="performance">
   <div class="container">
     <span class="eyebrow reveal">Model evaluation</span>
-    <h2 class="findings-heading reveal reveal-delay-1">From baseline to production.</h2>
+    <h2 class="findings-heading reveal reveal-delay-1">From baseline to final model.</h2>
 
     <div class="perf-grid">
       <!-- Left: comparison table -->
@@ -1683,7 +1692,7 @@
                 <th>
                   <div class="perf-col-header">
                     <span class="perf-col-name">LightGBM</span>
-                    <span class="perf-tag final">Production</span>
+                    <span class="perf-tag final">Final model</span>
                   </div>
                 </th>
               </tr>
@@ -1734,10 +1743,10 @@
 
     <!-- Section header -->
     <div class="impact-section-header reveal">
-      <span class="eyebrow">Real-world deployment</span>
+      <span class="eyebrow">Business case</span>
       <h2 class="impact-section-heading">Built to run on your data.</h2>
       <p class="impact-section-body">
-        The churn engine is not a research prototype. It is a production-ready scoring API designed to plug into any telecom CRM, billing pipeline, or data warehouse. Bring six fields from a subscriber record; receive a risk score, tier classification, and recommended action in under 50ms.
+        The engine is a containerised FastAPI service: send a subscriber record, get back a risk score, tier, and recommended action. The figures below are a projection, not measured results — they apply an assumed 30% retention success rate and $15 intervention cost to the model's risk tiers.
       </p>
     </div>
 
@@ -1877,7 +1886,7 @@
       <div class="impact-cell reveal reveal-delay-3">
         <span class="impact-big">14×</span>
         <div class="impact-label">Return on investment</div>
-        <div class="impact-note">$9.9M net uplift</div>
+        <div class="impact-note">$9.9M projected net uplift</div>
       </div>
     </div>
 
@@ -2135,7 +2144,17 @@ function resizeCanvas() {
 }
 
 // ── API
-const API = 'http://localhost:8000';
+// Point the page at a deployed API with ?api=https://your-host (remembered in this browser).
+// Default: CHURN_API_URL below, or a local server.
+const CHURN_API_URL = '';
+const API = (() => {
+  const fromQuery = new URLSearchParams(location.search).get('api');
+  try { if (fromQuery) localStorage.setItem('churnApi', fromQuery); } catch {}
+  let stored = null;
+  try { stored = localStorage.getItem('churnApi'); } catch {}
+  return (fromQuery || stored || CHURN_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+})();
+const API_LABEL = API.replace(/^https?:\/\//, '');
 
 async function checkApi() {
   const dot = document.getElementById('apiDot');
@@ -2144,15 +2163,17 @@ async function checkApi() {
     const r = await fetch(`${API}/`, { signal: AbortSignal.timeout(3000) });
     if (r.ok) {
       dot.className   = 'opera-api-dot';
-      txt.textContent = 'API live · localhost:8000';
+      txt.textContent = `Real model · ${API_LABEL}`;
       return;
     }
   } catch {}
   dot.className   = 'opera-api-dot offline';
-  txt.textContent = 'API offline — run uvicorn first';
+  txt.textContent = 'Model API offline — showing an illustrative estimate';
 }
 
-function mockPredict(p) {
+// Fallback when the model API is unreachable. A hand-written rule of thumb built from
+// the model's top drivers — NOT the trained LightGBM model. Results are labelled as such.
+function illustrativeEstimate(p) {
   let score = 0.48;
   if      (p.change_mou < -200) score += 0.22;
   else if (p.change_mou < -80)  score += 0.12;
@@ -2170,15 +2191,14 @@ function mockPredict(p) {
   if      (p.change_rev < -15) score += 0.08;
   else if (p.change_rev <  -5) score += 0.04;
   else if (p.change_rev >   5) score -= 0.05;
-  score += (Math.random() - 0.5) * 0.04;
   const prob = Math.max(0.04, Math.min(0.96, score));
-  const tier = prob > 0.60 ? 'High Risk' : prob > 0.40 ? 'Medium Risk' : 'Low Risk';
+  const tier = prob >= 0.60 ? 'High Risk' : prob >= 0.40 ? 'Medium Risk' : 'Low Risk';
   const actions = {
     'High Risk':   'Priority outreach: dedicated account manager call, device upgrade offer, customised plan review.',
     'Medium Risk': 'Loyalty SMS campaign, plan optimisation offer, satisfaction survey within 7 days.',
     'Low Risk':    'Automated email touchpoint, referral programme invitation.',
   };
-  return { churn_probability: parseFloat(prob.toFixed(3)), churn_prediction: prob > 0.5 ? 1 : 0, risk_tier: tier, recommended_action: actions[tier] };
+  return { churn_probability: parseFloat(prob.toFixed(3)), churn_prediction: prob >= 0.5 ? 1 : 0, risk_tier: tier, recommended_action: actions[tier], illustrative: true };
 }
 
 async function runPrediction() {
@@ -2205,12 +2225,11 @@ async function runPrediction() {
     if (!res.ok) throw new Error(await res.text());
     showResult(await res.json());
   } catch {
-    await new Promise(r => setTimeout(r, 380));
-    showResult(mockPredict(payload));
+    showResult(illustrativeEstimate(payload));
     const dot = document.getElementById('apiDot');
     const txt = document.getElementById('apiText');
     dot.className   = 'opera-api-dot offline';
-    txt.textContent = 'Demo mode — API offline';
+    txt.textContent = 'Model API offline — showing an illustrative estimate';
   } finally {
     btn.disabled    = false;
     btn.textContent = 'PREDICT RISK ▶';
@@ -2236,6 +2255,15 @@ function showResult(data) {
   probEl.textContent   = `Probability: ${(p * 100).toFixed(1)}%`;
   actionEl.textContent = recommended_action;
   resultEl.classList.add('show');
+
+  const sourceEl = document.getElementById('operaSource');
+  if (data.illustrative) {
+    sourceEl.textContent = 'Illustrative estimate — the trained model is offline. Run the API to score with LightGBM.';
+    sourceEl.className   = 'opera-result-source illustrative';
+  } else {
+    sourceEl.textContent = 'Scored by the trained LightGBM model.';
+    sourceEl.className   = 'opera-result-source';
+  }
 
   const sliderColors = { 'High Risk': '#C93A3A', 'Medium Risk': '#D4920A', 'Low Risk': '#2a5230' };
   const tierColor    = sliderColors[risk_tier] || '#2a5230';
