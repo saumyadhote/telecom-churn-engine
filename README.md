@@ -14,7 +14,7 @@
 ## Overview
 
 Telecom operators lose significant recurring revenue to churn without knowing *which* customers are at risk until it is too late. This project delivers a complete predictive solution: from raw usage records to a containerised API that scores any customer in milliseconds.
-
+Built from the final assignment of the University of Tokyo Matsuo-Iwasawa Lab's GCI World data science course (April 2026) and extended into an end-to-end prediction service.
 **What it does:**
 
 - Trains a LightGBM classifier on 100,000 customers with ~50% observed churn rate
