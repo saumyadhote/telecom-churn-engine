@@ -35,7 +35,7 @@ def client(mock_predictor):
     """Create a test client with the mock predictor injected."""
     with patch("api.main.predictor", mock_predictor):
         from api.main import app
-        return TestClient(app)
+        yield TestClient(app)
 
 
 # ── Sample payload ─────────────────────────────────────────────────────────────
