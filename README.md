@@ -142,7 +142,7 @@ This prints the metrics for both models and saves the model files to `models/`.
 uvicorn api.main:app --reload --port 8000
 ```
 
-Interactive docs are available at http://localhost:8000/docs.
+
 
 ---
 
