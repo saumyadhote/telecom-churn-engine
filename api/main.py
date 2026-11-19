@@ -50,18 +50,71 @@ logger = logging.getLogger(__name__)
 
 # ── App setup ──────────────────────────────────────────────────────────────────
 
+API_DESCRIPTION = """
+### 👉 [Open the website](/ui/)
+
+Predicts how likely a telecom customer is to **cancel within 60 days**, puts them in a
+**risk tier**, and suggests a **retention action**.
+
+**Model:** LightGBM · AUC-ROC 0.692 · F1 0.636 · accuracy 63.5%
+(measured on 20,000 customers the model never saw).
+
+---
+
+### What you can ask this API
+
+| Question | Endpoint |
+|---|---|
+| Is the service running? | `GET /` |
+| How good is the model, and what was it trained on? | `GET /model-info` |
+| How likely is *this* customer to leave, and what should we do? | `POST /predict` |
+| Which of these customers (up to 1,000) are most at risk? | `POST /predict/batch` |
+
+### How to try it on this page
+
+1. Click an endpoint below (for example **POST /predict**).
+2. Click **Try it out**: an example customer is already filled in.
+3. Change any numbers you like, then click **Execute**. The answer appears under **Responses**.
+
+### The inputs that matter most
+
+| Field | Meaning |
+|---|---|
+| `months` | How long they've been a customer (months) |
+| `eqpdays` | Days since their last phone upgrade |
+| `rev_Mean` | Average monthly bill ($) |
+| `change_mou` | Change in minutes used vs their recent average (negative = using less) |
+| `change_rev` | Change in monthly bill vs their recent average ($) |
+| `totmrc_Mean` | Fixed monthly plan charge ($) |
+
+Every field is optional. **Fields you leave out are treated as 0**, so sending more of them gives
+more realistic answers.
+
+### Reading the answer
+
+| Field | Meaning |
+|---|---|
+| `churn_probability` | Estimated chance (0–1) they leave within 60 days |
+| `churn_prediction` | 1 = likely to leave (probability ≥ 0.5), 0 = likely to stay |
+| `risk_tier` | **High Risk** ≥ 0.60 · **Medium Risk** 0.40–0.60 · **Low Risk** < 0.40 |
+| `recommended_action` | What the retention team should do for that tier |
+
+*Built from the University of Tokyo Matsuo-Iwasawa Lab GCI World course (2026) final assignment.*
+"""
+
+TAGS_METADATA = [
+    {"name": "Prediction", "description": "Score customers: churn probability, risk tier and recommended action."},
+    {"name": "Model", "description": "What the model is, what data it learned from, and how well it performs."},
+    {"name": "Health", "description": "Check the service is up."},
+]
+
 app = FastAPI(
     title="Telecom Churn Prediction Engine",
-    description=(
-        "ML-powered REST API that scores telecom customers by churn risk "
-        "and returns a recommended retention action.\n\n"
-        "### 👉 [Open the website](/ui/)\n\n"
-        "**Model:** LightGBM | **AUC-ROC:** 0.692 | **F1:** 0.639\n\n"
-        "Built by Saumya — GCI World 2026 / personal portfolio project."
-    ),
+    description=API_DESCRIPTION,
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    openapi_tags=TAGS_METADATA,
 )
 
 app.add_middleware(
@@ -90,6 +143,11 @@ if UI_DIR.is_dir():
 # ── Load model once at startup ─────────────────────────────────────────────────
 
 MODEL_DIR = Path("models/")
+MODEL_NOT_LOADED = (
+    "Model not loaded. Check the server log: either the model files are "
+    "missing (run `python -m src.train`) or LightGBM couldn't start "
+    "(on macOS: `brew install libomp`)."
+)
 predictor: Optional[ChurnPredictor] = None
 
 
@@ -182,8 +240,9 @@ class BatchRequest(BaseModel):
 
 # ── Endpoints ──────────────────────────────────────────────────────────────────
 
-@app.get("/", tags=["Health"])
+@app.get("/", tags=["Health"], summary="Is the service running?")
 def root():
+    """Returns `status: ok` when the API is up, plus links to the docs and the website."""
     return {
         "status":  "ok",
         "service": "Telecom Churn Prediction Engine",
@@ -193,9 +252,13 @@ def root():
     }
 
 
-@app.get("/model-info", tags=["Model"])
+@app.get("/model-info", tags=["Model"], summary="How good is the model, and what was it trained on?")
 def model_info():
-    """Return model metadata and performance metrics."""
+    """
+    Describes the model: algorithm, prediction target, training data, number of
+    features, test-set scores for the final model and the baseline, and the
+    risk-tier cut-offs.
+    """
     results_path = MODEL_DIR / "results.json"
     if results_path.exists():
         with open(results_path) as f:
@@ -207,27 +270,38 @@ def model_info():
         "model":           "LightGBM (gradient boosted trees)",
         "target":          "churn (binary: will customer cancel within 60 days?)",
         "training_data":   "100,000 US telecom customers (Company A dataset)",
-        "features":        "100 raw + 4 engineered = 104 total",
+        "features":        (
+            f"{results['feature_count']} after preprocessing (raw columns + 4 engineered)"
+            if "feature_count" in results else "raw columns + 4 engineered"
+        ),
         "performance":     results.get("lightgbm", {}),
         "baseline":        results.get("logistic_regression", {}),
         "risk_tiers": {
-            "High Risk":   "churn_probability > 0.60",
+            "High Risk":   "churn_probability >= 0.60",
             "Medium Risk": "churn_probability 0.40–0.60",
             "Low Risk":    "churn_probability < 0.40",
         },
     }
 
 
-@app.post("/predict", response_model=PredictionResult, tags=["Prediction"])
+@app.post(
+    "/predict",
+    response_model=PredictionResult,
+    tags=["Prediction"],
+    summary="How likely is this customer to leave, and what should we do?",
+)
 def predict(customer: CustomerFeatures):
     """
-    Score a single customer and return their churn probability,
-    risk tier, and recommended retention action.
+    Send one customer's numbers; get back their churn probability, a 0/1
+    prediction, their risk tier and a recommended retention action.
+
+    All fields are optional and missing ones count as 0. The six most useful are
+    `months`, `eqpdays`, `rev_Mean`, `change_mou`, `change_rev` and `totmrc_Mean`.
     """
     if predictor is None:
         raise HTTPException(
             status_code=503,
-            detail="Model not loaded. Run `python -m src.train` first.",
+            detail=MODEL_NOT_LOADED,
         )
 
     customer_dict = customer.model_dump(exclude_none=False)
@@ -242,16 +316,21 @@ def predict(customer: CustomerFeatures):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/predict/batch", tags=["Prediction"])
+@app.post(
+    "/predict/batch",
+    tags=["Prediction"],
+    summary="Which of these customers are most at risk?",
+)
 def predict_batch(request: BatchRequest):
     """
-    Score a batch of up to 1,000 customers in one request.
-    Returns a list of prediction results in the same order.
+    Score up to 1,000 customers in one request, for example a daily export of
+    all active customers. Send `{"customers": [ {...}, {...} ]}`; results come
+    back in the same order, one per customer.
     """
     if predictor is None:
         raise HTTPException(
             status_code=503,
-            detail="Model not loaded. Run `python -m src.train` first.",
+            detail=MODEL_NOT_LOADED,
         )
 
     results = []

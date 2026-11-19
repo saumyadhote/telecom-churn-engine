@@ -1383,6 +1383,45 @@
       .footer-inner { gap: var(--s2); }
       .footer-links { gap: var(--s3); }
     }
+  /* ── Explain boxes ("Explain this") + FAQ ─────────────────────────── */
+    .explain-section { padding: 0 0 var(--s8); background: var(--off-white); }
+    .explain {
+      margin-top: var(--s5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--white);
+    }
+    .explain > summary,
+    .faq > summary {
+      cursor: pointer;
+      list-style: none;
+      font-weight: 600;
+      color: var(--accent);
+      padding: var(--s2) var(--s3);
+    }
+    .explain > summary::-webkit-details-marker,
+    .faq > summary::-webkit-details-marker { display: none; }
+    .explain > summary::before { content: "＋ "; }
+    .explain[open] > summary::before { content: "－ "; }
+    .explain-body { padding: 0 var(--s3) var(--s3); color: var(--text-2); font-size: 15px; line-height: 1.65; }
+    .explain-body p + p, .explain-body p + ul, .explain-body ul + p { margin-top: var(--s2); }
+    .explain-body ul { padding-left: 1.2em; }
+    .explain-body li + li { margin-top: 4px; }
+    .explain-body strong { color: var(--text-1); }
+
+    .faq-section { padding: var(--s12) 0; background: var(--white); }
+    .faq-list { margin-top: var(--s5); border-top: 1px solid var(--border); }
+    .faq { border-bottom: 1px solid var(--border); }
+    .faq > summary { color: var(--text-1); padding: var(--s3) 0; display: flex; justify-content: space-between; gap: var(--s2); }
+    .faq > summary::after { content: "+"; color: var(--text-3); font-weight: 400; }
+    .faq[open] > summary::after { content: "−"; }
+    .faq > p { padding: 0 0 var(--s3); color: var(--text-2); line-height: 1.65; max-width: 760px; }
+    .faq a { color: var(--accent); }
+    @media (max-width: 768px) {
+      .faq-section { padding: var(--s8) 0; }
+      .explain > summary { padding: var(--s2); }
+      .explain-body { padding: 0 var(--s2) var(--s2); }
+    }
   </style>
 </head>
 <body>
@@ -1395,11 +1434,12 @@
       Churn Engine
     </a>
     <ul class="nav-links">
-      <li><a href="#predictor">Predictor</a></li>
+      <li><a href="#predictor">Try it</a></li>
       <li><a href="#findings">Findings</a></li>
       <li><a href="#performance">Model</a></li>
-      <li><a href="#impact">Impact</a></li>
-      <li><a href="#predictor" class="nav-cta">Try Demo</a></li>
+      <li><a href="#tiers">Risk tiers</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="http://localhost:8000/docs" data-docs-link target="_blank" rel="noopener" class="nav-cta">API docs</a></li>
     </ul>
   </div>
 </nav>
@@ -1414,65 +1454,45 @@
           Predicting customer churn<br><em>before it happens.</em>
         </h1>
         <p class="hero-body reveal reveal-delay-2">
-          A LightGBM classifier trained on 100,000 customers identifies which subscribers will cancel within 60 days — segmenting them into actionable risk tiers with prescriptive retention strategies.
+          A LightGBM model trained on 100,000 telecom customers estimates how likely each subscriber is to cancel within 60 days, sorts them into High, Medium or Low risk, and suggests a retention action for each.
         </p>
         <div class="hero-actions reveal reveal-delay-3">
           <a href="#predictor" class="btn-primary">Try the predictor</a>
+          <a href="http://localhost:8000/docs" data-docs-link target="_blank" rel="noopener" class="btn-ghost">API docs →</a>
           <a href="https://github.com/saumyadhote/telecom-churn-engine" target="_blank" class="btn-ghost" rel="noopener noreferrer">GitHub →</a>
         </div>
       </div>
-
       <div class="hero-stats reveal reveal-delay-2">
-        <div class="hero-stats-label">Model performance</div>
+        <div class="hero-stats-label">Model performance (20,000 unseen customers)</div>
         <div class="hero-stat-row">
           <span class="hero-stat-key">AUC-ROC</span>
           <span class="hero-stat-val">0.692</span>
         </div>
         <div class="hero-stat-row">
-          <span class="hero-stat-key">F1 Score</span>
-          <span class="hero-stat-val">0.639</span>
+          <span class="hero-stat-key">F1 score</span>
+          <span class="hero-stat-val">0.636</span>
         </div>
         <div class="hero-stat-row">
-          <span class="hero-stat-key">Customers trained</span>
+          <span class="hero-stat-key">Accuracy</span>
+          <span class="hero-stat-val">63.5%</span>
+        </div>
+        <div class="hero-stat-row">
+          <span class="hero-stat-key">Customers in dataset</span>
           <span class="hero-stat-val">100K</span>
         </div>
-        <div class="hero-stat-row">
-          <span class="hero-stat-key">Projected net uplift</span>
-          <span class="hero-stat-val">$9.9M<span class="hero-stat-sub">/ yr</span></span>
-        </div>
-        <div class="hero-stat-row">
-          <span class="hero-stat-key">Return on investment</span>
-          <span class="hero-stat-val">14×</span>
-        </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- ── How it helps ───────────────────────────────────────────────────────── -->
-<section class="how-section">
-  <div class="container">
-    <span class="how-eyebrow reveal">What this does for you</span>
-    <div class="how-grid">
-      <div class="how-card reveal">
-        <div class="how-number">01</div>
-        <h3 class="how-title">Spot at-risk customers up to 60 days early</h3>
-        <p class="how-body">Six standard CRM signals — tenure, device age, usage drift, and billing trends — are scored daily against a LightGBM classifier trained on 100,000 real subscribers. No custom data pipelines required.</p>
-        <span class="how-stat">60 days</span>
+    <details class="explain reveal">
+      <summary>Explain this project</summary>
+      <div class="explain-body">
+        <p><strong>The problem.</strong> "Churn" means a customer cancels their phone contract. Winning a new customer costs more than keeping an existing one, so carriers want to know <em>who</em> is about to leave while there is still time to act.</p>
+        <p><strong>What this does.</strong> For each customer it outputs a churn probability (0–100%), puts them in a risk tier, and recommends what the retention team should do. The prediction window is the next 60 days.</p>
+        <p><strong>Where it comes from.</strong> The final assignment of the University of Tokyo Matsuo-Iwasawa Lab GCI World data science course (April 2026), extended into a working service: a trained model, a REST API, and this website.</p>
+        <p><strong>The data.</strong> 100,000 US telecom customers in two files, account details and monthly usage/billing records, merged on customer ID. About 100 raw columns plus 4 features I engineered (102 after preprocessing). About half the customers churned.</p>
+        <p><strong>How the pieces fit.</strong> This page → sends the customer's numbers to the API (FastAPI) → the API prepares the features and asks the LightGBM model → the model returns a probability → the API maps it to a tier and action → the page shows the result.</p>
       </div>
-      <div class="how-card reveal reveal-delay-1">
-        <div class="how-number">02</div>
-        <h3 class="how-title">A prescriptive action for every account</h3>
-        <p class="how-body">Every customer lands in High, Medium, or Low risk — each tier paired with a specific retention playbook. Your team knows exactly who to call, what to offer, and when to act. No analyst required.</p>
-        <span class="how-stat">3 tiers</span>
-      </div>
-      <div class="how-card reveal reveal-delay-2">
-        <div class="how-number">03</div>
-        <h3 class="how-title">Turn retention spend into measurable ROI</h3>
-        <p class="how-body">Precision targeting routes expensive interventions only to the subscribers worth saving. High-risk customers get account manager calls; low-risk customers get automated emails. Stop blanket discounting.</p>
-        <span class="how-stat">14× ROI</span>
-      </div>
-    </div>
+    </details>
   </div>
 </section>
 
@@ -1579,6 +1599,29 @@
   </div>
 </section>
 
+<!-- Explanation for the predictor (kept outside the predictor section so its layout is untouched) -->
+<section class="explain-section">
+  <div class="container">
+    <details class="explain">
+      <summary>Explain the predictor</summary>
+      <div class="explain-body">
+        <p><strong>What to do.</strong> Change the six numbers (or click <em>High Risk</em> / <em>Low Risk</em> to load an example) and press <em>Predict risk</em>. Hover the <strong>i</strong> next to each field for what it means.</p>
+        <p><strong>The six inputs.</strong></p>
+        <ul>
+          <li><code>months</code>: how long they've been a customer. New customers leave more often.</li>
+          <li><code>eqpdays</code>: days since their last phone upgrade. Old phones mean they may switch carrier to get a new one.</li>
+          <li><code>rev_Mean</code>: average monthly bill.</li>
+          <li><code>change_mou</code>: change in minutes used vs their recent average. A drop is the strongest warning sign.</li>
+          <li><code>change_rev</code>: change in monthly bill vs their recent average.</li>
+          <li><code>totmrc_Mean</code>: fixed monthly plan charge.</li>
+        </ul>
+        <p><strong>Reading the result.</strong> <em>Probability</em> is the model's estimate that this customer leaves within 60 days. The tier comes from that number: 60% or more is High, 40–60% is Medium, below 40% is Low. The action is the playbook for that tier.</p>
+        <p><strong>Good to know.</strong> The model was trained on ~100 columns, but this form sends only the six most useful ones; the API treats the rest as 0, so treat the result as an illustration. If the status line says <em>"Demo mode — API offline"</em>, the API couldn't be reached and the page used a simple built-in rule of thumb instead of the real model.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
 <!-- ── Findings ───────────────────────────────────────────────────────────── -->
 <section class="findings-section" id="findings">
   <div class="container">
@@ -1588,7 +1631,7 @@
         <h2 class="findings-heading">What drives a customer to leave.</h2>
       </div>
       <p class="findings-intro reveal reveal-delay-1">
-        Five signals emerged from 100+ raw features as the strongest predictors of 60-day churn. Each one points to a distinct intervention strategy.
+        Four signals stood out from 100+ raw features. Each one points to a different way to keep the customer.
       </p>
     </div>
 
@@ -1596,9 +1639,7 @@
       <div class="finding-num">01</div>
       <div class="finding-content">
         <div class="finding-title">Usage decline is the leading signal.</div>
-        <p class="finding-body">
-          The change in minutes-of-use over the trailing three months (<code>change_mou</code>) is the single strongest predictor. Churners' call volume falls at roughly three times the rate of customers who stay — a measurable drift that begins weeks before cancellation.
-        </p>
+        <p class="finding-body">The change in minutes used (<code>change_mou</code>) is the model's most important feature. Customers who are about to leave start using their phone less.</p>
       </div>
       <div class="finding-stat">
         <span class="finding-stat-val">#1</span>
@@ -1609,10 +1650,8 @@
     <div class="finding reveal reveal-delay-1">
       <div class="finding-num">02</div>
       <div class="finding-content">
-        <div class="finding-title">Device age predicts upgrade intent.</div>
-        <p class="finding-body">
-          45% of churners are on handsets that are one to two or more years old, compared to 30% of retained customers. Customers on aging devices are implicitly shopping for new hardware — often from a competing carrier.
-        </p>
+        <div class="finding-title">Old phones signal upgrade shopping.</div>
+        <p class="finding-body">45% of churners are on handsets a year or more old, vs 30% of customers who stay. They're looking for a new phone, often from a competitor.</p>
       </div>
       <div class="finding-stat">
         <span class="finding-stat-val">45%</span>
@@ -1623,10 +1662,8 @@
     <div class="finding reveal">
       <div class="finding-num">03</div>
       <div class="finding-content">
-        <div class="finding-title">Revenue decay tracks disengagement.</div>
-        <p class="finding-body">
-          The declining revenue trend (<code>change_rev</code>) mirrors falling usage — customers gradually reduce their spend before they churn. This drift is detectable 4–6 weeks in advance if monitored weekly.
-        </p>
+        <div class="finding-title">Spending falls before they leave.</div>
+        <p class="finding-body">Revenue (<code>change_rev</code>) drops alongside usage, so the decline can be spotted weeks ahead if it's monitored.</p>
       </div>
       <div class="finding-stat">
         <span class="finding-stat-val">4–6w</span>
@@ -1637,36 +1674,42 @@
     <div class="finding reveal reveal-delay-1">
       <div class="finding-num">04</div>
       <div class="finding-content">
-        <div class="finding-title">Value-for-money mismatch, not price.</div>
-        <p class="finding-body">
-          A revenue-per-minute efficiency feature reveals that churners pay <em>more</em> per minute of actual use, not less. They receive less value from their plan — making targeted plan optimisation a more effective intervention than blanket discounts.
-        </p>
+        <div class="finding-title">Poor value, not high price.</div>
+        <p class="finding-body">Churners pay <em>more per minute they actually use</em>. Their plan doesn't fit how they use it, so plan changes beat blanket discounts.</p>
       </div>
       <div class="finding-stat">
         <span class="finding-stat-val">&#8593; rpm</span>
-        <span class="finding-stat-label">Churners' rev per min</span>
+        <span class="finding-stat-label">Churners' revenue per minute</span>
       </div>
     </div>
 
     <div class="callout reveal">
       <p class="callout-text">
-        "Churn is not a pricing problem. Churners and stayers pay nearly identical monthly amounts — $58.21 vs $59.22. Discounts alone will not retain them."
+        "Churn is not a pricing problem. Churners and stayers pay nearly the same each month: $58.21 vs $59.22. Discounts alone will not keep them."
       </p>
-      <div class="callout-note">
-        Key insight from EDA<br />across 100,000 customers
-      </div>
+      <div class="callout-note">Key insight from the analysis<br />of 100,000 customers</div>
     </div>
+
+    <details class="explain">
+      <summary>Explain the findings</summary>
+      <div class="explain-body">
+        <p><strong>How they were found.</strong> By comparing customers who left with those who stayed during exploratory analysis, and by checking which inputs the trained model relies on most (its <em>feature importance</em>).</p>
+        <p><strong>Revenue per minute</strong> is one of the four features I engineered: monthly bill ÷ minutes used. High values mean the customer pays a lot for what they actually use.</p>
+        <p><strong>The other engineered features:</strong> call completion rate (completed ÷ placed calls), drop rate (dropped ÷ placed calls) and an overage flag (did they go over their plan's minutes).</p>
+        <p><strong>Why it matters.</strong> Each signal suggests a different fix: falling usage → check in early; old phone → upgrade offer; poor value → move them to a better-fitting plan.</p>
+        <p><strong>Careful:</strong> these are patterns (correlations), not proof that one thing causes the other.</p>
+      </div>
+    </details>
   </div>
 </section>
 
-<!-- ── Performance — comparison table ────────────────────────────────────── -->
+<!-- ── Model performance ──────────────────────────────────────────────────── -->
 <section class="performance-section" id="performance">
   <div class="container">
     <span class="eyebrow reveal">Model evaluation</span>
-    <h2 class="findings-heading reveal reveal-delay-1">From baseline to production.</h2>
+    <h2 class="findings-heading reveal reveal-delay-1">Baseline vs final model.</h2>
 
     <div class="perf-grid">
-      <!-- Left: comparison table -->
       <div class="reveal reveal-delay-1">
         <div class="perf-compare-card">
           <table class="perf-compare-table">
@@ -1682,7 +1725,7 @@
                 <th>
                   <div class="perf-col-header">
                     <span class="perf-col-name">LightGBM</span>
-                    <span class="perf-tag final">Production</span>
+                    <span class="perf-tag final">Final</span>
                   </div>
                 </th>
               </tr>
@@ -1691,200 +1734,47 @@
               <tr>
                 <td>AUC-ROC</td>
                 <td><span class="perf-val">0.604</span></td>
-                <td><span class="perf-val">0.692</span><span class="perf-delta">+14.5%</span></td>
+                <td><span class="perf-val">0.692</span><span class="perf-delta">+14.4%</span></td>
               </tr>
               <tr>
-                <td>F1 Score</td>
-                <td><span class="perf-val">0.562</span></td>
-                <td><span class="perf-val">0.639</span><span class="perf-delta">+13.7%</span></td>
+                <td>F1 score</td>
+                <td><span class="perf-val">0.556</span></td>
+                <td><span class="perf-val">0.636</span><span class="perf-delta">+14.4%</span></td>
               </tr>
               <tr>
                 <td>Accuracy</td>
-                <td><span class="perf-val">57.7%</span></td>
-                <td><span class="perf-val">63.7%</span><span class="perf-delta">+10.4%</span></td>
+                <td><span class="perf-val">57.6%</span></td>
+                <td><span class="perf-val">63.5%</span><span class="perf-delta">+10.3%</span></td>
               </tr>
             </tbody>
           </table>
-          <div class="perf-compare-footer">
-            80,000 training / 20,000 test &mdash; stratified split
-          </div>
+          <div class="perf-compare-footer">80,000 training / 20,000 test customers, stratified split</div>
         </div>
       </div>
 
-      <!-- Right: notes -->
       <div class="reveal reveal-delay-2" style="padding-top: var(--s3);">
-        <p class="perf-note">
-          Evaluated on a stratified 80/20 train-test split — 20,000 held-out customers the model had never seen during training.
-        </p>
-        <p class="perf-note">
-          LightGBM's gradient-boosted tree structure captures the non-linear interaction between usage decline, device age, and billing patterns that a linear classifier cannot express.
-        </p>
-        <p class="perf-note" style="margin-top: var(--s5); font-size: 13px; color: var(--text-3);">
-          The 50% base churn rate reflects the dataset's natural distribution — the model must discriminate effectively at random, making AUC-ROC the primary evaluation metric.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── Business impact — detailed deployment ──────────────────────────────── -->
-<section class="impact-section" id="impact">
-  <div class="container">
-
-    <!-- Section header -->
-    <div class="impact-section-header reveal">
-      <span class="eyebrow">Real-world deployment</span>
-      <h2 class="impact-section-heading">Built to run on your data.</h2>
-      <p class="impact-section-body">
-        The churn engine is not a research prototype. It is a production-ready scoring API designed to plug into any telecom CRM, billing pipeline, or data warehouse. Bring six fields from a subscriber record; receive a risk score, tier classification, and recommended action in under 50ms.
-      </p>
-    </div>
-
-    <!-- Workflow rows -->
-    <div class="workflow-rows">
-      <div class="workflow-row reveal">
-        <div class="workflow-num">01</div>
-        <div class="workflow-title">Daily batch scoring</div>
-        <div class="workflow-desc">
-          Export your active subscriber base each morning and submit it to <code>/predict/batch</code>. The API accepts up to 1,000 customers per request and returns a risk-segmented list that feeds directly into your retention team's daily queue. High-risk customers are surfaced first.
-        </div>
-      </div>
-
-      <div class="workflow-row reveal reveal-delay-1">
-        <div class="workflow-num">02</div>
-        <div class="workflow-title">Event-triggered scoring</div>
-        <div class="workflow-desc">
-          Wire <code>/predict</code> into your billing or usage pipeline. When a customer's monthly minutes drop by more than 15%, or their device age crosses the 12-month mark, the event fires a score. The result routes automatically to the relevant tier — no analyst required.
-        </div>
-      </div>
-
-      <div class="workflow-row reveal reveal-delay-2">
-        <div class="workflow-num">03</div>
-        <div class="workflow-title">Campaign budget allocation</div>
-        <div class="workflow-desc">
-          Risk tiers translate directly to intervention cost. High-risk customers justify a dedicated account manager call ($40–60 per intervention). Medium-risk customers receive an automated loyalty offer ($5–10). Low-risk customers are left undisturbed. Precision targeting reduces waste.
-        </div>
+        <p class="perf-note">Scores are measured on 20,000 customers the model never saw during training.</p>
+        <p class="perf-note">LightGBM beats the simple baseline because it can learn combinations, like "old phone <em>and</em> falling usage", that a straight-line model can't.</p>
+        <p class="perf-note">An AUC of 0.69 is a real improvement, but modest. The model ranks risk usefully; it is not a crystal ball.</p>
       </div>
     </div>
 
-    <!-- What data section -->
-    <div class="data-subsection reveal">
-      <h3 class="data-heading">Six fields. Any CRM.</h3>
-      <p class="data-body">
-        No feature engineering required on your end. Submit a raw JSON object with these six standard subscriber metrics:
-      </p>
-
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Field</th>
-            <th>What it means</th>
-            <th>Where to find it</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>months</td>
-            <td>Subscriber tenure in months</td>
-            <td>Account creation date</td>
-          </tr>
-          <tr>
-            <td>eqpdays</td>
-            <td>Days since last device upgrade</td>
-            <td>Device inventory system</td>
-          </tr>
-          <tr>
-            <td>rev_Mean</td>
-            <td>Average monthly revenue over last 3 months</td>
-            <td>Billing system</td>
-          </tr>
-          <tr>
-            <td>change_mou</td>
-            <td>Change in monthly minutes vs 3-month average</td>
-            <td>Usage records</td>
-          </tr>
-          <tr>
-            <td>change_rev</td>
-            <td>Change in monthly revenue vs 3-month average</td>
-            <td>Billing system</td>
-          </tr>
-          <tr>
-            <td>totmrc_Mean</td>
-            <td>Average monthly recurring charge</td>
-            <td>Billing system</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="code-wrap">
-        <div class="code-block">
-          <div class="code-block-header">Request — bash / curl</div>
-          <pre>curl -X POST http://your-host:8000/predict \
-  -H <span class="code-str">"Content-Type: application/json"</span> \
-  -d <span class="code-str">'{
-    "months": <span class="code-num">18</span>,
-    "eqpdays": <span class="code-num">480</span>,
-    "rev_Mean": <span class="code-num">55.2</span>,
-    "change_mou": <span class="code-num">-120</span>,
-    "change_rev": <span class="code-num">-8.5</span>,
-    "totmrc_Mean": <span class="code-num">42.0</span>
-  }'</span></pre>
-        </div>
-        <div class="code-block">
-          <div class="code-block-header">Response — JSON</div>
-          <pre>{
-  <span class="code-key">"churn_probability"</span>: <span class="code-num">0.74</span>,
-  <span class="code-key">"risk_tier"</span>: <span class="code-str">"High Risk"</span>,
-  <span class="code-key">"recommended_action"</span>: <span class="code-str">"Priority outreach:
-    dedicated account manager
-    call, device upgrade offer,
-    customised plan review."</span>
-}</pre>
-        </div>
+    <details class="explain">
+      <summary>Explain the metrics</summary>
+      <div class="explain-body">
+        <p><strong>AUC-ROC (0.692).</strong> Pick one customer who left and one who stayed at random: the model gives the leaver the higher risk score about 69% of the time. 0.5 is a coin flip; 1.0 is perfect. It's the main metric because it measures how well the model <em>ranks</em> customers, which is what a retention team needs.</p>
+        <p><strong>F1 score (0.636).</strong> Combines two questions into one number: of the customers it flags, how many really leave (precision)? And of the customers who leave, how many did it catch (recall)?</p>
+        <p><strong>Accuracy (63.5%).</strong> The share of customers it labels correctly (leave vs stay). Because about half the customers in the data churned, guessing would get about 50%.</p>
+        <p><strong>Logistic regression</strong> is a simple, standard model used as a yardstick. <strong>LightGBM</strong> builds hundreds of small decision trees, each one fixing the mistakes of the ones before it ("gradient boosting").</p>
+        <p><strong>Stratified 80/20 split.</strong> 80% of customers for training, 20% held back for testing, with the same churn rate in both halves.</p>
+        <p><strong>Honest limits.</strong> The test scores are slightly optimistic (the test set was also used to decide when to stop training), and real carriers have much lower churn rates than this dataset, so the model would need re-checking on real data.</p>
       </div>
-    </div>
-
-    <!-- Impact numbers -->
-    <div class="reveal">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s10);align-items:end;margin-bottom:var(--s4);">
-        <div>
-          <span class="eyebrow">Financial impact</span>
-          <h3 class="impact-main-heading">The financial argument for early intervention.</h3>
-          <p class="impact-main-body">
-            At a 30% retention success rate and $15 per customer intervention, the model's risk segmentation generates a measurable return. High-risk customers are prioritised for costly but warranted outreach; low-risk customers receive automated, low-cost touchpoints.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="impact-grid">
-      <div class="impact-cell reveal">
-        <span class="impact-big">$16.7M</span>
-        <div class="impact-label">Revenue at risk from high-risk segment</div>
-        <div class="impact-note">29,290 customers · 82.9% churn rate</div>
-      </div>
-      <div class="impact-cell reveal reveal-delay-1">
-        <span class="impact-big">$10.6M</span>
-        <div class="impact-label">Revenue recoverable</div>
-        <div class="impact-note">30% retention success rate</div>
-      </div>
-      <div class="impact-cell reveal reveal-delay-2">
-        <span class="impact-big">$760K</span>
-        <div class="impact-label">Intervention cost</div>
-        <div class="impact-note">$15 per customer · 50,700 targeted</div>
-      </div>
-      <div class="impact-cell reveal reveal-delay-3">
-        <span class="impact-big">14×</span>
-        <div class="impact-label">Return on investment</div>
-        <div class="impact-note">$9.9M net uplift</div>
-      </div>
-    </div>
-
+    </details>
   </div>
 </section>
 
 <!-- ── Risk tiers ─────────────────────────────────────────────────────────── -->
-<section class="tiers-section">
+<section class="tiers-section" id="tiers">
   <div class="container">
     <span class="eyebrow reveal">Risk segmentation</span>
     <h2 class="findings-heading reveal reveal-delay-1">Three tiers, three strategies.</h2>
@@ -1893,76 +1783,87 @@
       <thead>
         <tr>
           <th>Tier</th>
-          <th>Score</th>
+          <th>Churn probability</th>
           <th>Customers</th>
-          <th>Churn rate</th>
-          <th class="revenue">Revenue at risk</th>
+          <th>Actually churned</th>
           <th>Recommended action</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>
-            <div class="tier-badge">
-              <div class="tier-pip" style="background:#C93A3A"></div>
-              High Risk
-            </div>
-          </td>
-          <td>&gt; 60%</td>
+          <td><div class="tier-badge"><div class="tier-pip" style="background:#C93A3A"></div>High Risk</div></td>
+          <td>60% or more</td>
           <td>29,290</td>
           <td>82.9%</td>
-          <td class="revenue">$16.7M / yr</td>
-          <td class="action">Dedicated account manager call, device upgrade offer, plan review</td>
+          <td class="action">Account manager call, device upgrade offer, plan review</td>
         </tr>
         <tr>
-          <td>
-            <div class="tier-badge">
-              <div class="tier-pip" style="background:#D4920A"></div>
-              Medium Risk
-            </div>
-          </td>
+          <td><div class="tier-badge"><div class="tier-pip" style="background:#D4920A"></div>Medium Risk</div></td>
           <td>40 – 60%</td>
           <td>41,023</td>
           <td>49.5%</td>
-          <td class="revenue">$14.0M / yr</td>
-          <td class="action">Loyalty SMS, plan optimisation, satisfaction survey</td>
+          <td class="action">Loyalty SMS, plan optimisation offer, satisfaction survey</td>
         </tr>
         <tr>
-          <td>
-            <div class="tier-badge">
-              <div class="tier-pip" style="background:#1E6B3C"></div>
-              Low Risk
-            </div>
-          </td>
-          <td>&lt; 40%</td>
+          <td><div class="tier-badge"><div class="tier-pip" style="background:#1E6B3C"></div>Low Risk</div></td>
+          <td>below 40%</td>
           <td>29,687</td>
           <td>16.8%</td>
-          <td class="revenue">$3.7M / yr</td>
           <td class="action">Automated email, referral programme</td>
         </tr>
       </tbody>
     </table>
+
+    <details class="explain">
+      <summary>Explain the tiers</summary>
+      <div class="explain-body">
+        <p><strong>Why tiers?</strong> A probability alone doesn't tell a team what to do. Tiers turn it into a decision: expensive, personal effort for the customers most likely to leave, and cheap automated contact for the rest.</p>
+        <p><strong>Do the tiers work?</strong> Yes, they separate customers well: 82.9% of High Risk customers actually churned, vs 16.8% of Low Risk.</p>
+        <p><strong>Where the cut-offs come from.</strong> 60% and 40% are fixed, sensible choices. They haven't been tuned to the real cost of each action, which would be the next step with a real company's numbers.</p>
+      </div>
+    </details>
   </div>
 </section>
 
-<!-- ── Stack ──────────────────────────────────────────────────────────────── -->
-<section class="stack-section">
+<!-- ── FAQ ────────────────────────────────────────────────────────────────── -->
+<section class="faq-section" id="faq">
   <div class="container">
-    <div class="stack-inner reveal">
-      <h3 class="stack-heading">Built with</h3>
-      <div class="stack-list">
-        <span class="stack-item">LightGBM 4.x</span>
-        <span class="stack-item">scikit-learn</span>
-        <span class="stack-item">FastAPI</span>
-        <span class="stack-item">Uvicorn</span>
-        <span class="stack-item">pandas</span>
-        <span class="stack-item">NumPy</span>
-        <span class="stack-item">Pydantic v2</span>
-        <span class="stack-item">joblib</span>
-        <span class="stack-item">pytest</span>
-        <span class="stack-item">Docker</span>
-        <span class="stack-item">Python 3.11</span>
-      </div>
+    <span class="eyebrow reveal">Questions</span>
+    <h2 class="findings-heading reveal reveal-delay-1">Things people usually ask.</h2>
+
+    <div class="faq-list">
+      <details class="faq">
+        <summary>How accurate is it?</summary>
+        <p>On 20,000 customers it had never seen, it ranks a leaver above a stayer 69% of the time (AUC 0.692) and labels 63.5% of customers correctly. That's clearly better than the 0.604 baseline and a coin flip, but modest. Its value is in prioritising who to contact first, not in certainty about any one person.</p>
+      </details>
+      <details class="faq">
+        <summary>Where does the data come from?</summary>
+        <p>A 100,000-customer US telecom dataset from the final assignment of the University of Tokyo Matsuo-Iwasawa Lab GCI World course (April 2026). It has account details plus monthly usage and billing records. The raw data isn't published in the repository.</p>
+      </details>
+      <details class="faq">
+        <summary>Why not just give everyone a discount?</summary>
+        <p>Churners and stayers pay almost the same monthly amount ($58.21 vs $59.22), so price isn't what drives people away. Falling usage, old phones and poor plan fit are. Discounts for everyone would cost a lot and miss the real reasons.</p>
+      </details>
+      <details class="faq">
+        <summary>How would a telecom company use this?</summary>
+        <p>Two ways: (1) once a day, send the whole customer list to the batch endpoint (up to 1,000 per request) and hand the High Risk list to the retention team; (2) score a customer whenever something changes, such as usage dropping sharply or their phone passing a year old.</p>
+      </details>
+      <details class="faq">
+        <summary>What happens when I press "Predict risk"?</summary>
+        <p>The page sends the six numbers to the API. The API fills in the other fields, adds the engineered features, and asks the LightGBM model for a probability. It then picks the tier and action and sends them back. If the API can't be reached, the page shows "Demo mode" and uses a simple built-in rule instead.</p>
+      </details>
+      <details class="faq">
+        <summary>What are the limitations?</summary>
+        <p>Accuracy is modest. Fields left out of a request are treated as 0, while training used typical (median) values, which can shift predictions. Test scores are slightly optimistic. Tier cut-offs aren't tuned to real costs. And the data is more balanced than real life (about 50% churn), so it needs validating on a real carrier's data.</p>
+      </details>
+      <details class="faq">
+        <summary>What is it built with?</summary>
+        <p>Python, pandas and NumPy for data; scikit-learn for the baseline; LightGBM for the final model; FastAPI and Pydantic for the API; pytest for 16 automated tests; Docker for packaging. This page is plain HTML, CSS and JavaScript.</p>
+      </details>
+      <details class="faq">
+        <summary>Can I call the API myself?</summary>
+        <p>Yes. Open the <a href="http://localhost:8000/docs" data-docs-link target="_blank" rel="noopener">API docs</a>, pick an endpoint, click "Try it out", then "Execute". The docs page also lists what you can ask it.</p>
+      </details>
     </div>
   </div>
 </section>
@@ -1975,10 +1876,11 @@
         <img src="./churn.svg" alt="Churn Engine logo" />
         Churn Engine
       </span>
-      <span class="footer-meta">GCI World 2026 · Matsuo-Iwasawa Lab, University of Tokyo</span>
+      <span class="footer-meta">GCI World 2026 · Matsuo-Iwasawa Lab, University of Tokyo · LightGBM · FastAPI · Python</span>
       <div class="footer-links">
         <a href="#predictor">Demo</a>
-        <a href="#performance">Model</a>
+        <a href="http://localhost:8000/docs" data-docs-link target="_blank" rel="noopener">API docs</a>
+        <a href="https://github.com/saumyadhote/telecom-churn-engine" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
     </div>
   </div>
@@ -2140,6 +2042,9 @@ function resizeCanvas() {
 const API = (location.protocol.startsWith('http') && location.pathname.startsWith('/ui'))
   ? location.origin
   : 'http://localhost:8000';
+
+// Point every "API docs" link at the API this page talks to.
+document.querySelectorAll('[data-docs-link]').forEach(a => { a.href = `${API}/docs`; });
 
 async function checkApi() {
   const dot = document.getElementById('apiDot');
