@@ -2134,7 +2134,12 @@ function resizeCanvas() {
 }
 
 // ── API
-const API = 'http://localhost:8000';
+// When this page is served by the API itself (http://localhost:8000/ui/),
+// talk to the same server. When opened as a file or from another server,
+// fall back to the default local API address.
+const API = (location.protocol.startsWith('http') && location.pathname.startsWith('/ui'))
+  ? location.origin
+  : 'http://localhost:8000';
 
 async function checkApi() {
   const dot = document.getElementById('apiDot');

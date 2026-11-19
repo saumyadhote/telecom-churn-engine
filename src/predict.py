@@ -10,6 +10,8 @@ Usage:
     result = predictor.predict(customer_dict)
 """
 
+from __future__ import annotations
+
 import joblib
 import logging
 import numpy as np

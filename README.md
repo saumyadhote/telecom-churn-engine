@@ -136,11 +136,19 @@ python -m src.train \
 
 This prints the metrics for both models and saves the model files to `models/`.
 
-### 4. Start the API
+### 4. Start the API and website
 
 ```bash
-uvicorn api.main:app --reload --port 8000
+./run.sh
+# or: uvicorn api.main:app --reload --port 8000
 ```
+
+One command runs both:
+
+- Website: http://localhost:8000/ui/
+- API docs: http://localhost:8000/docs (there's a link to the website at the top)
+
+> **macOS:** LightGBM needs the OpenMP runtime. If the log says `Library not loaded: libomp.dylib`, run `brew install libomp`.
 
 
 

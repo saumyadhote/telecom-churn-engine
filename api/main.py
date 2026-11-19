@@ -2,18 +2,34 @@
 api/main.py
 -----------
 FastAPI REST API for the Telecom Churn Prediction Engine.
+It also serves the website (ui/index.html), so one command runs everything.
 
-Endpoints:
-    GET  /             → health check
-    GET  /model-info   → model metadata and performance metrics
-    POST /predict      → score a single customer
-    POST /predict/batch → score a list of customers (max 1000)
+HOW TO RUN
+==========
+Easiest, from the project root:
 
-Run locally:
+    ./run.sh
+
+Or by hand:
+
+    source myenv/bin/activate              # activate your virtualenv
+    pip install -r requirements.txt        # first time only
     uvicorn api.main:app --reload --port 8000
 
-Then visit:
-    http://localhost:8000/docs   ← interactive Swagger UI
+Then open:
+    http://localhost:8000/ui/    ← the website (churn scoring UI)
+    http://localhost:8000/docs   ← interactive Swagger API docs (has a link to the website)
+    http://localhost:8000/       ← health check (JSON)
+
+The model files must exist in models/. If they don't, train first:
+    python -m src.train --client data/Client.csv --record data/Record.csv --output models/
+
+Endpoints:
+    GET  /              → health check
+    GET  /ui/           → the website
+    GET  /model-info    → model metadata and performance metrics
+    POST /predict       → score a single customer
+    POST /predict/batch → score a list of customers (max 1000)
 """
 
 import json
@@ -23,6 +39,8 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.predict import ChurnPredictor
@@ -37,6 +55,7 @@ app = FastAPI(
     description=(
         "ML-powered REST API that scores telecom customers by churn risk "
         "and returns a recommended retention action.\n\n"
+        "### 👉 [Open the website](/ui/)\n\n"
         "**Model:** LightGBM | **AUC-ROC:** 0.692 | **F1:** 0.639\n\n"
         "Built by Saumya — GCI World 2026 / personal portfolio project."
     ),
@@ -52,6 +71,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Website (static UI) ─────────────────────────────────────────────────────────
+# Serves ui/index.html at http://localhost:8000/ui/ so you don't need a
+# separate web server. Path is resolved from this file, so it works no matter
+# which directory you start uvicorn from.
+
+UI_DIR = Path(__file__).resolve().parent.parent / "ui"
+
+if UI_DIR.is_dir():
+    app.mount("/ui", StaticFiles(directory=UI_DIR, html=True), name="ui")
+
+    @app.get("/website", include_in_schema=False)
+    def website_redirect():
+        """Short alias: /website → /ui/"""
+        return RedirectResponse(url="/ui/")
+
+
 # ── Load model once at startup ─────────────────────────────────────────────────
 
 MODEL_DIR = Path("models/")
@@ -64,11 +99,22 @@ def load_model() -> None:
     try:
         predictor = ChurnPredictor(MODEL_DIR)
         logger.info("ChurnPredictor loaded successfully")
+        logger.info("Website:  http://localhost:8000/ui/")
+        logger.info("API docs: http://localhost:8000/docs")
     except FileNotFoundError:
         logger.warning(
             "Model files not found in models/. "
             "Run `python -m src.train` first."
         )
+    except OSError as exc:
+        # Typical on macOS: LightGBM needs the OpenMP runtime (libomp).
+        # Keep the server up so the website and /docs still load;
+        # /predict will return 503 until this is fixed.
+        hint = (
+            " On macOS install it with `brew install libomp`."
+            if "libomp" in str(exc) else ""
+        )
+        logger.error("Could not load the model: %s.%s", exc, hint)
 
 
 # ── Schemas ────────────────────────────────────────────────────────────────────
@@ -143,6 +189,7 @@ def root():
         "service": "Telecom Churn Prediction Engine",
         "version": "1.0.0",
         "docs":    "/docs",
+        "website": "/ui/",
     }
 
 

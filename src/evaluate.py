@@ -5,6 +5,8 @@ Evaluation metrics, ROC curve, confusion matrix, and
 feature importance plotting utilities.
 """
 
+from __future__ import annotations
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker

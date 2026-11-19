@@ -8,6 +8,8 @@ Usage:
     from src.preprocess import load_data, engineer_features
 """
 
+from __future__ import annotations
+
 import pandas as pd
 import numpy as np
 from pathlib import Path
